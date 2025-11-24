@@ -1,0 +1,166 @@
+/* ============================
+   MAIN LAYOUT
+============================ */
+.dashboard-container {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  height: 100vh;
+  background: #F8FAFC;
+  font-family: system-ui, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* ============================
+   LEFT SIDEBAR
+============================ */
+.left-sidebar {
+  background: white;
+  border-right: 1px solid #E2E8F0;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.left-sidebar h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 35px;
+  color: #1E293B;
+}
+
+.left-sidebar nav ul {
+  padding: 0;
+  list-style: none;
+}
+
+.left-sidebar nav ul li {
+  margin-bottom: 12px;
+}
+
+.left-sidebar nav ul li a {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #475569;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.left-sidebar nav ul li a:hover {
+  background: #EEF2FF;
+  color: #4338CA;
+}
+
+/* ============================
+   MAIN CONTENT (middle)
+============================ */
+.main-content {
+  padding: 35px;
+  overflow-y: auto;
+}
+
+.dashboard-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.dashboard-header p {
+  color: #64748B;
+  margin-top: 5px;
+}
+
+/* ============================
+   QUICK ACTIONS
+============================ */
+.quick-actions {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.action-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  padding: 26px;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.action-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0F172A;
+}
+
+.action-card p {
+  color: #64748B;
+  margin-top: 4px;
+}
+
+/* ============================
+   MY STUDY GROUPS
+============================ */
+.my-study-groups {
+  margin-top: 40px;
+}
+
+.my-study-groups h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 16px;
+}
+
+.study-group-cards {
+  display: flex;
+  gap: 20px;
+}
+
+.study-group-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  padding: 26px;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  width: 260px;
+  text-align: center;
+  color: #64748B;
+}
+
+/* ============================
+   RIGHT SIDEBAR
+============================ */
+.right-sidebar {
+  background: #F8FAFC;
+  border-left: 1px solid #E2E8F0;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.right-sidebar h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.upcoming-events,
+.suggested-groups {
+  background: white;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.upcoming-events p,
+.suggested-groups p {
+  color: #64748B;
+}

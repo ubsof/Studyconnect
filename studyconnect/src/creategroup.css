@@ -1,0 +1,166 @@
+/* 3-COLUMN LAYOUT */
+.create-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 320px;
+  height: 100vh;
+  background: #F8FAFC;
+  font-family: system-ui, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* LEFT SIDEBAR */
+.left-sidebar {
+  background: white;
+  border-right: 1px solid #E2E8F0;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 35px;
+  color: #1E293B;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-item {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #475569;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  background: #EEF2FF;
+  color: #4338CA;
+  font-weight: 600;
+}
+
+.user-card {
+  margin-top: auto;
+  background: #F1F5F9;
+  padding: 16px;
+  border-radius: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  background: #CBD5E1;
+  border-radius: 50%;
+}
+
+/* MAIN CONTENT */
+.main-content {
+  padding: 35px;
+  overflow-y: auto;
+}
+
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+/* FORM CARD */
+.form-container {
+  margin-top: 25px;
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* EACH FIELD ROW */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.icon-box {
+  width: 42px;
+  height: 42px;
+  background: #F3E8FF;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #7C3AED;
+}
+
+label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1E293B;
+  min-width: 150px;
+}
+
+.required {
+  color: red;
+}
+
+input,
+textarea {
+  flex: 1;
+  padding: 10px;
+  font-size: 15px;
+  border: 1px solid #CBD5E1;
+  border-radius: 10px;
+  outline: none;
+}
+
+textarea {
+  resize: none;
+  height: 70px;
+}
+
+/* RIGHT SIDEBAR */
+.right-sidebar {
+  background: #F8FAFC;
+  border-left: 1px solid #E2E8F0;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.panel {
+  background: white;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.panel h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.panel p {
+  color: #64748B;
+}
