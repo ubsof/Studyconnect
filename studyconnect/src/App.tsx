@@ -4,6 +4,7 @@ import LoginPage from "./LoginPage";
 import Dashboard from "./Dashboard";
 import Profile from "./Profile";
 import CreateGroup from "./CreateGroup";
+import Register from "./Register";
 export default function App() {
   return (
     <Routes>
@@ -12,6 +13,7 @@ export default function App() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/creategroup" element={<CreateGroup />} />
+      <Route path="/register" element={<Register />} />
     </Routes>
   );
 }
