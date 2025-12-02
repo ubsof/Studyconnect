@@ -1,6 +1,29 @@
+import { useEffect, useState } from "react";
 import "./dashboard.css";
+import api from "./services/api";
 
 export default function Dashboard() {
+  const [events, setEvents] = useState<any[]>([]);
+  const [suggested, setSuggested] = useState<any[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const ev = await api.upcomingEvents();
+        setEvents(ev || []);
+      } catch (err) {
+        setEvents([]);
+      }
+
+      try {
+        const sg = await api.suggested();
+        setSuggested(sg || []);
+      } catch (err) {
+        setSuggested([]);
+      }
+    })();
+  }, []);
+
   return (
     <div className="dashboard-container">
 
@@ -22,7 +45,7 @@ export default function Dashboard() {
       <div className="main-content">
 
         <div className="dashboard-header">
-          <h2>Welcome back, Tony!</h2>
+          <h2>Welcome back!</h2>
           <p>Ready to connect and learn today?</p>
         </div>
 
@@ -47,9 +70,7 @@ export default function Dashboard() {
         <div className="my-study-groups">
           <h3>My Study Groups</h3>
           <div className="study-group-cards">
-            <div className="study-group-card">
-              No groups joined yet
-            </div>
+            <div className="study-group-card">No groups joined yet</div>
           </div>
         </div>
 
@@ -60,12 +81,24 @@ export default function Dashboard() {
 
         <div className="upcoming-events">
           <h3>Upcoming Events</h3>
-          <p>No events scheduled</p>
+          {events.length === 0 ? <p>No events scheduled</p> : (
+            <ul>
+              {events.map(ev => (
+                <li key={ev.id}>{ev.title} — {new Date(ev.startTime).toLocaleString()}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="suggested-groups">
           <h3>Suggested Study Groups</h3>
-          <p>No suggestions yet</p>
+          {suggested.length === 0 ? <p>No suggestions yet</p> : (
+            <ul>
+              {suggested.map(g => (
+                <li key={g.id}>{g.subject} — {g.smallDesc}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
       </div>

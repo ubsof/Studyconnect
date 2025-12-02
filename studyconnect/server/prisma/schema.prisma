@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int        @id @default(autoincrement())
+  email      String     @unique
+  password   String
+  name       String?
+  year       String?
+  course     String?
+  createdAt  DateTime   @default(now())
+  userGroups UserGroup[]
+  userTags   UserTag[]
+}
+
+model Group {
+  id          Int        @id @default(autoincrement())
+  subject     String
+  smallDesc   String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  capacity    Int
+  typeOfStudy String
+  language    String
+  location    String
+  createdBy   Int
+  createdAt   DateTime   @default(now())
+  userGroups  UserGroup[]
+  groupTags   GroupTag[]
+}
+
+model UserGroup {
+  id       Int    @id @default(autoincrement())
+  user     User   @relation(fields: [userId], references: [id])
+  userId   Int
+  group    Group  @relation(fields: [groupId], references: [id])
+  groupId  Int
+  role     String @default("member")
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, groupId])
+}
+
+model Tag {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  groupTags GroupTag[]
+  userTags  UserTag[]
+}
+
+model GroupTag {
+  id      Int   @id @default(autoincrement())
+  group   Group @relation(fields: [groupId], references: [id])
+  groupId Int
+  tag     Tag   @relation(fields: [tagId], references: [id])
+  tagId   Int
+
+  @@unique([groupId, tagId])
+}
+
+model UserTag {
+  id     Int   @id @default(autoincrement())
+  user   User  @relation(fields: [userId], references: [id])
+  userId Int
+  tag    Tag   @relation(fields: [tagId], references: [id])
+  tagId  Int
+
+  @@unique([userId, tagId])
+}
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  title     String
+  location  String?
+  startTime DateTime
+  endTime   DateTime?
+  createdAt DateTime @default(now())
+}

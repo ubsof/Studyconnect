@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./register.css";
+import api from "./services/api";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -8,12 +9,24 @@ export default function Register() {
   const [year, setYear] = useState("");
   const [dob, setDob] = useState("");
   const [course, setCourse] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // currently just logs and navigates back to login for demo
-    console.log({ name, year, dob, course });
-    navigate("/login");
+    setError(null);
+    try {
+      const res = await api.register({ email, password, name, year, course });
+      if (res.token) {
+        localStorage.setItem("token", res.token);
+        navigate("/dashboard");
+      } else {
+        setError(res.error || "Registration failed");
+      }
+    } catch (err) {
+      setError("Network error");
+    }
   }
 
   return (
@@ -36,6 +49,22 @@ export default function Register() {
               placeholder="Your full name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+            />
+
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="Choose a password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
 
             <label>Year</label>
@@ -63,6 +92,8 @@ export default function Register() {
 
             <button type="submit">Register</button>
           </form>
+
+          {error && <div style={{ color: "#c00", marginTop: 8 }}>{error}</div>}
         </div>
       </div>
     </div>

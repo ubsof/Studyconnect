@@ -1,26 +1,33 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
+import api from "./services/api";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // fake login just to test routing
-    if (email && password) {
-      navigate("/dashboard");
+    setError(null);
+    try {
+      const res = await api.login(email, password);
+      if (res.token) {
+        localStorage.setItem("token", res.token);
+        navigate("/dashboard");
+      } else {
+        setError(res.error || "Login failed");
+      }
+    } catch (err) {
+      setError("Network error");
     }
   }
 
   return (
     <div className="page">
       <div className="login-layout">
-        {/* Removed the "div" text */}
-        
-        {/* logo + StudyConnect */}
         <div className="brand-row">
           <div className="brand-logo">
             <span className="cap">🎓</span>
@@ -30,13 +37,12 @@ export default function LoginPage() {
 
         <div className="brand-underline" />
 
-        {/* card */}
         <div className="login-card">
           <form onSubmit={handleSubmit}>
             <label>Email</label>
             <input
               type="email"
-              placeholder="Value"
+              placeholder="you@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -44,7 +50,7 @@ export default function LoginPage() {
             <label>Password</label>
             <input
               type="password"
-              placeholder="Value"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -52,6 +58,7 @@ export default function LoginPage() {
             <button type="submit">Sign In</button>
           </form>
 
+          {error && <div style={{ color: "#c00", marginTop: 8 }}>{error}</div>}
           <a className="forgot-link">Forgot password?</a>
         </div>
       </div>
