@@ -20,7 +20,7 @@ export default function Register() {
       const res = await api.register({ email, password, name, year, course });
       if (res.token) {
         localStorage.setItem("token", res.token);
-        navigate("/dashboard");
+        navigate("/profile");
       } else {
         setError(res.error || "Registration failed");
       }

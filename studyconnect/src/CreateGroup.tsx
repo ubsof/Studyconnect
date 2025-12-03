@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import "./creategroup.css";
 import api from "./services/api";
-import { useNavigate } from "react-router-dom";
 
 export default function CreateGroup() {
   const navigate = useNavigate();
@@ -52,10 +52,10 @@ export default function CreateGroup() {
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
-          <a className="nav-item">Dashboard</a>
-          <a className="nav-item">Study Groups</a>
-          <a className="nav-item active">Create Group</a>
-          <a className="nav-item">Profile</a>
+          <Link to="/dashboard" className="nav-item">Dashboard</Link>
+          <Link to="/studygroups" className="nav-item">Study Groups</Link>
+          <Link to="/creategroup" className="nav-item active">Create Group</Link>
+          <Link to="/profile" className="nav-item">Profile</Link>
         </nav>
 
         <div className="user-card">

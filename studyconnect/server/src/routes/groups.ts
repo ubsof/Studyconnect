@@ -52,7 +52,12 @@ router.post("/create", requireAuth, async (req: AuthRequest, res) => {
 });
 
 router.get("/all", async (req, res) => {
-  const groups = await prisma.group.findMany({ include: { groupTags: { include: { tag: true } } } });
+  const groups = await prisma.group.findMany({ 
+    include: { 
+      groupTags: { include: { tag: true } },
+      _count: { select: { userGroups: true } }
+    } 
+  });
   res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name) })));
 });
 
@@ -66,7 +71,10 @@ router.get("/search", async (req, res) => {
         { description: { contains: q, mode: "insensitive" } }
       ]
     },
-    include: { groupTags: { include: { tag: true } } }
+    include: { 
+      groupTags: { include: { tag: true } },
+      _count: { select: { userGroups: true } }
+    }
   });
   res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name) })));
 });

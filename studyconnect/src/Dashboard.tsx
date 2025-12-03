@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "./dashboard.css";
 import api from "./services/api";
 
@@ -33,10 +34,10 @@ export default function Dashboard() {
 
         <nav>
           <ul>
-            <li><a className="active">Dashboard</a></li>
-            <li><a>Study Groups</a></li>
-            <li><a>Create Group</a></li>
-            <li><a>Profile</a></li>
+            <li><Link to="/dashboard" className="active">Dashboard</Link></li>
+            <li><Link to="/studygroups">Study Groups</Link></li>
+            <li><Link to="/creategroup">Create Group</Link></li>
+            <li><Link to="/profile">Profile</Link></li>
           </ul>
         </nav>
       </div>
