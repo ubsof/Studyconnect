@@ -366,3 +366,15 @@
   padding: 40px;
   color: #6b7280;
 }
+
+.muted {
+  color: #6b7280;
+  font-size: 12px;
+  margin: 4px 0;
+}
+
+.empty {
+  text-align: center;
+  color: #6b7280;
+  padding: 24px;
+}

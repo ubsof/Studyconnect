@@ -66,9 +66,9 @@ router.get("/search", async (req, res) => {
   const groups = await prisma.group.findMany({
     where: {
       OR: [
-        { subject: { contains: q, mode: "insensitive" } },
-        { smallDesc: { contains: q, mode: "insensitive" } },
-        { description: { contains: q, mode: "insensitive" } }
+        { subject: { contains: q } },
+        { smallDesc: { contains: q } },
+        { description: { contains: q } }
       ]
     },
     include: { 

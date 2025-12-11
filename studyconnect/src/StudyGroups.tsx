@@ -5,11 +5,16 @@ import api from "./services/api";
 
 export default function StudyGroups() {
   const [groups, setGroups] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [suggestedGroups, setSuggestedGroups] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emptyMessage, setEmptyMessage] = useState<string | null>(null);
 
   useEffect(() => {
     loadGroups();
+    loadEvents();
+    loadSuggested();
   }, []);
 
   async function loadGroups() {
@@ -17,8 +22,10 @@ export default function StudyGroups() {
     try {
       const data = await api.getAllGroups();
       setGroups(data || []);
+      setEmptyMessage((data || []).length === 0 ? "Match not found" : null);
     } catch (err) {
       console.error(err);
+      setEmptyMessage("Match not found");
     } finally {
       setLoading(false);
     }
@@ -34,8 +41,10 @@ export default function StudyGroups() {
     try {
       const data = await api.searchGroups(searchQuery);
       setGroups(data || []);
+      setEmptyMessage((data || []).length === 0 ? "Match not found" : null);
     } catch (err) {
       console.error(err);
+      setEmptyMessage("Match not found");
     } finally {
       setLoading(false);
     }
@@ -49,6 +58,26 @@ export default function StudyGroups() {
       alert("Failed to join group");
     }
   }
+
+  async function loadEvents() {
+    try {
+      const data = await api.upcomingEvents();
+      setEvents(data || []);
+    } catch (err) {
+      setEvents([]);
+    }
+  }
+
+  async function loadSuggested() {
+    try {
+      const data = await api.suggested();
+      setSuggestedGroups(data || []);
+    } catch (err) {
+      setSuggestedGroups([]);
+    }
+  }
+
+  const eventColors = ["#3b82f6", "#8b5cf6", "#10b981"];
 
   return (
     <div className="studygroups-layout">
@@ -108,7 +137,7 @@ export default function StudyGroups() {
         ) : (
           <div className="groups-grid">
             {groups.length === 0 ? (
-              <p>No groups found</p>
+              <p className="empty">{emptyMessage || "No groups found"}</p>
             ) : (
               groups.map((group) => (
                 <div key={group.id} className="group-card">
@@ -138,49 +167,49 @@ export default function StudyGroups() {
       <aside className="sidebar-right">
         <div className="sidebar-section">
           <h3>Upcoming Events</h3>
-          <ul className="event-list">
-            <li>
-              <span className="event-dot blue"></span>
-              <div>
-                <strong>Calculus Study Session</strong>
-                <p>Today, 3:00 PM</p>
-              </div>
-            </li>
-            <li>
-              <span className="event-dot purple"></span>
-              <div>
-                <strong>Chemistry Lab Prep</strong>
-                <p>Tomorrow, 2:00 AM</p>
-              </div>
-            </li>
-            <li>
-              <span className="event-dot green"></span>
-              <div>
-                <strong>International Mixer</strong>
-                <p>Friday, 7:00 AM</p>
-              </div>
-            </li>
-          </ul>
+          {events.length === 0 ? (
+            <p className="muted">No upcoming events</p>
+          ) : (
+            <ul className="event-list">
+              {events.map((ev: any, idx: number) => (
+                <li key={ev.id}>
+                  <span
+                    className="event-dot"
+                    style={{ background: eventColors[idx % eventColors.length] }}
+                  ></span>
+                  <div>
+                    <strong>{ev.title}</strong>
+                    <p>{new Date(ev.startTime).toLocaleString()}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="sidebar-section">
           <h3>Suggested Study Groups</h3>
-          <div className="suggested-list">
-            <div className="suggested-card">
-              <div className="suggested-icon red">P</div>
-              <div>
-                <strong>Physics Study Circle</strong>
-                <p>4 members</p>
-              </div>
+          {suggestedGroups.length === 0 ? (
+            <p className="muted">No suggestions yet</p>
+          ) : (
+            <div className="suggested-list">
+              {suggestedGroups.map((g: any, idx: number) => (
+                <div className="suggested-card" key={g.id}>
+                  <div className={`suggested-icon ${idx % 2 === 0 ? "red" : "green"}`}>
+                    {g.subject?.charAt(0).toUpperCase() || "G"}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <strong>{g.subject}</strong>
+                    <p>{g._count?.userGroups || 0} members</p>
+                    <p className="muted">{g.smallDesc}</p>
+                  </div>
+                  <button className="join-button" onClick={() => handleJoin(g.id)}>
+                    Join
+                  </button>
+                </div>
+              ))}
             </div>
-            <div className="suggested-card">
-              <div className="suggested-icon green">P</div>
-              <div>
-                <strong>Programming Bootcamp</strong>
-                <p>12 members</p>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </aside>
     </div>
