@@ -119,23 +119,37 @@ export default function Dashboard() {
 
         <div className="upcoming-events">
           <h3>Upcoming Events</h3>
-          {events.length === 0 ? <p>No events scheduled</p> : (
-            <ul>
-              {events.map(ev => (
-                <li key={ev.id}>{ev.title} — {new Date(ev.startTime).toLocaleString()}</li>
+          {myGroups.length === 0 ? <p>No events scheduled</p> : (
+            <div className="event-list">
+              {myGroups.map((g, idx) => (
+                <div key={g.id} className="event-item">
+                  <div className="event-icon" style={{ background: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'][idx % 5] }}>
+                    {g.subject?.charAt(0).toUpperCase() || "E"}
+                  </div>
+                  <div className="event-info">
+                    <strong>{g.subject}</strong>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
         <div className="suggested-groups">
           <h3>Suggested Study Groups</h3>
           {suggested.length === 0 ? <p>No suggestions yet</p> : (
-            <ul>
-              {suggested.map(g => (
-                <li key={g.id}>{g.subject} — {g.smallDesc}</li>
+            <div className="event-list">
+              {suggested.map((g, idx) => (
+                <div key={g.id} className="event-item">
+                  <div className="event-icon" style={{ background: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'][idx % 5] }}>
+                    {g.subject?.charAt(0).toUpperCase() || "S"}
+                  </div>
+                  <div className="event-info">
+                    <strong>{g.subject}</strong>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
