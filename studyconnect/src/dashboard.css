@@ -28,6 +28,12 @@
   color: #1E293B;
 }
 
+.left-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* push user card to bottom */
+}
+
 .left-sidebar nav ul {
   padding: 0;
   list-style: none;
@@ -50,6 +56,35 @@
 .left-sidebar nav ul li a:hover {
   background: #EEF2FF;
   color: #4338CA;
+}
+
+/* User card pinned at bottom */
+.user-card {
+  margin-top: 20px; /* visible gap from nav */
+  background: #f9fafb; /* match StudyGroups */
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.user-info p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 /* ============================

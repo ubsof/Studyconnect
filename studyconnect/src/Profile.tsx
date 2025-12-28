@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./profile.css";
 import api from "./services/api";
 
 export default function ProfilePage() {
+  const navigate = useNavigate();
   const [user, setUser] = useState<{ id: number; email: string; name?: string; year?: string; course?: string } | null>(null);
   const [createdGroups, setCreatedGroups] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +32,13 @@ export default function ProfilePage() {
   const displayYear = user?.year || "-";
   const displayCourse = user?.course || "-";
 
+  function handleLogout() {
+    try {
+      localStorage.removeItem("token");
+    } catch {}
+    navigate("/login");
+  }
+
   return (
     <div className="profile-layout">
 
@@ -57,8 +65,13 @@ export default function ProfilePage() {
       {/* PROFILE MAIN CONTENT */}
       <main className="profile-content">
 
-        <h1 className="welcome">Welcome back, {displayName}!</h1>
-        <p className="subtitle">Ready to connect and learn today?</p>
+        <div className="logout-header">
+          <div>
+            <h1 className="welcome">Welcome back, {displayName}!</h1>
+            <p className="subtitle">Ready to connect and learn today?</p>
+          </div>
+          <button className="logout-button" onClick={handleLogout}>Log Out</button>
+        </div>
 
         <div className="profile-card">
 

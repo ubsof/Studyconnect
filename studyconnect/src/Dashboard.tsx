@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./dashboard.css";
 import api from "./services/api";
+import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function Dashboard() {
   const [events, setEvents] = useState<any[]>([]);
@@ -48,6 +49,7 @@ export default function Dashboard() {
             <li><Link to="/profile">Profile</Link></li>
           </ul>
         </nav>
+        <SidebarUserCard />
       </div>
 
       {/* MAIN CONTENT */}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./login.css";
 import api from "./services/api";
 
@@ -59,7 +59,10 @@ export default function LoginPage() {
           </form>
 
           {error && <div style={{ color: "#c00", marginTop: 8 }}>{error}</div>}
-          <a className="forgot-link">Forgot password?</a>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
+            <a className="forgot-link">Forgot password?</a>
+            <Link to="/register" className="forgot-link">Register</Link>
+          </div>
         </div>
       </div>
     </div>

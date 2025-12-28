@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "./creategroup.css";
 import api from "./services/api";
+import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function CreateGroup() {
   const navigate = useNavigate();
@@ -58,13 +59,7 @@ export default function CreateGroup() {
           <Link to="/profile" className="nav-item">Profile</Link>
         </nav>
 
-        <div className="user-card">
-          <div className="avatar"></div>
-          <div>
-            <strong>Tony</strong>
-            <p>Computer Science</p>
-          </div>
-        </div>
+        <SidebarUserCard />
       </aside>
 
       {/* MAIN CREATE GROUP CONTENT */}

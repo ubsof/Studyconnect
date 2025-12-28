@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./studygroups.css";
 import api from "./services/api";
+import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function StudyGroups() {
   const [groups, setGroups] = useState<any[]>([]);
@@ -92,13 +93,7 @@ export default function StudyGroups() {
           <Link to="/profile" className="nav-item">Profile</Link>
         </nav>
 
-        <div className="user-card">
-          <div className="avatar"></div>
-          <div className="user-info">
-            <strong>Tony</strong>
-            <p>Computer Science</p>
-          </div>
-        </div>
+        <SidebarUserCard />
       </aside>
 
       {/* MAIN CONTENT */}

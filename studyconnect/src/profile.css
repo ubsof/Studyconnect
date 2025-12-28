@@ -84,6 +84,30 @@
   color: #64748B;
 }
 
+/* Header with logout button */
+.logout-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logout-button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #ef4444;
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.15);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.logout-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.22);
+}
+
 /* PROFILE CARD */
 .profile-card {
   margin-top: 30px;
