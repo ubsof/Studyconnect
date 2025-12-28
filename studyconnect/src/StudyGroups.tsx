@@ -53,7 +53,7 @@ export default function StudyGroups() {
   async function handleJoin(groupId: number) {
     try {
       await api.joinGroup(groupId);
-      alert("Successfully joined group!");
+      alert("Join request sent! Wait for admin approval.");
     } catch (err) {
       alert("Failed to join group");
     }
@@ -154,7 +154,7 @@ export default function StudyGroups() {
                   <p className="group-detail"><strong>Language:</strong> {group.language || "Any"}</p>
                   <p className="group-detail"><strong>Type of Study:</strong> {group.typeOfStudy}</p>
                   <button onClick={() => handleJoin(group.id)} className="join-button">
-                    Join Group
+                    Request to Join
                   </button>
                 </div>
               ))

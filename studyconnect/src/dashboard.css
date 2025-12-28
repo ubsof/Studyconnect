@@ -89,6 +89,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 18px;
 }
 
@@ -103,6 +104,23 @@
   margin-top: 4px;
 }
 
+.action-button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #1d4ed8;
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.action-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.22);
+}
+
 /* ============================
    MY STUDY GROUPS
 ============================ */
@@ -110,27 +128,146 @@
   margin-top: 40px;
 }
 
-.my-study-groups h3 {
+.my-groups-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.my-groups-header h3 {
   font-size: 20px;
   font-weight: 700;
   color: #0F172A;
-  margin-bottom: 16px;
+  margin: 0;
+}
+
+.view-all-link {
+  color: #6366F1;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.view-all-link:hover {
+  text-decoration: underline;
 }
 
 .study-group-cards {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.study-group-card {
+.study-group-card-empty {
   background: white;
   border: 1px solid #E2E8F0;
-  padding: 26px;
+  padding: 24px;
   border-radius: 18px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  width: 260px;
   text-align: center;
   color: #64748B;
+}
+
+.study-group-card-detailed {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 150ms ease;
+}
+
+.study-group-card-detailed:hover {
+  border-color: #C7D2FE;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.group-icon-small {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.group-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.group-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0;
+}
+
+.member-count {
+  font-size: 13px;
+  color: #64748B;
+  margin: 0;
+}
+
+.active-badge {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #D1FAE5;
+  color: #059669;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 60px;
+}
+
+.group-desc {
+  font-size: 14px;
+  color: #475569;
+  margin: 0;
+}
+
+.group-time,
+.group-location {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+
+.group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.muted-text {
+  margin: 0;
+  color: #64748B;
+  font-size: 14px;
 }
 
 /* ============================

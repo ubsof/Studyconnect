@@ -5,6 +5,7 @@ import api from "./services/api";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<{ id: number; email: string; name?: string; year?: string; course?: string } | null>(null);
+  const [createdGroups, setCreatedGroups] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -15,6 +16,13 @@ export default function ProfilePage() {
         else setError(res?.error || "Not authenticated");
       } catch (e) {
         setError("Failed to load profile");
+      }
+
+      try {
+        const groups = await api.getCreatedGroups();
+        setCreatedGroups(groups || []);
+      } catch (e) {
+        console.error("Failed to load created groups");
       }
     })();
   }, []);
@@ -73,6 +81,34 @@ export default function ProfilePage() {
           <p className="profile-line"><strong>Fun Fact about me:</strong></p>
 
           {error && <div style={{ color: "#c00", marginTop: 8 }}>{error}</div>}
+        </div>
+
+        {/* CREATED GROUPS SECTION */}
+        <div className="created-groups-section">
+          <h2 className="section-title">Groups You Created</h2>
+          {createdGroups.length === 0 ? (
+            <p className="empty-message">You haven't created any groups yet</p>
+          ) : (
+            <div className="groups-grid">
+              {createdGroups.map((group) => (
+                <Link 
+                  key={group.id} 
+                  to={`/manage-group/${group.id}`}
+                  className="group-item"
+                >
+                  <div className="group-icon">
+                    {group.subject?.charAt(0).toUpperCase() || "G"}
+                  </div>
+                  <div className="group-details">
+                    <h3>{group.subject}</h3>
+                    <p className="group-desc">{group.smallDesc}</p>
+                    <p className="group-members">{group._count?.userGroups || 0} members</p>
+                  </div>
+                  <div className="manage-badge">Manage →</div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </main>
 

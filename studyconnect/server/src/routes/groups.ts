@@ -41,8 +41,8 @@ router.post("/create", requireAuth, async (req: AuthRequest, res) => {
       await prisma.groupTag.create({ data: { groupId: group.id, tagId: tag.id } });
     }
 
-    // add creator as admin
-    await prisma.userGroup.create({ data: { userId, groupId: group.id, role: "admin" } });
+    // add creator as admin with approved status
+    await prisma.userGroup.create({ data: { userId, groupId: group.id, role: "admin", status: "approved" } });
 
     res.json({ group });
   } catch (err) {
@@ -55,10 +55,10 @@ router.get("/all", async (req, res) => {
   const groups = await prisma.group.findMany({ 
     include: { 
       groupTags: { include: { tag: true } },
-      _count: { select: { userGroups: true } }
+      userGroups: { where: { status: "approved" } }
     } 
   });
-  res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name) })));
+  res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name), _count: { userGroups: g.userGroups.length } })));
 });
 
 router.get("/search", async (req, res) => {
@@ -73,10 +73,10 @@ router.get("/search", async (req, res) => {
     },
     include: { 
       groupTags: { include: { tag: true } },
-      _count: { select: { userGroups: true } }
+      userGroups: { where: { status: "approved" } }
     }
   });
-  res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name) })));
+  res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name), _count: { userGroups: g.userGroups.length } })));
 });
 
 router.post("/join", requireAuth, async (req: AuthRequest, res) => {
@@ -84,8 +84,9 @@ router.post("/join", requireAuth, async (req: AuthRequest, res) => {
     const userId = req.userId!;
     const { groupId } = req.body;
     const existing = await prisma.userGroup.findUnique({ where: { userId_groupId: { userId, groupId } } });
-    if (existing) return res.status(400).json({ error: "Already a member" });
-    const ug = await prisma.userGroup.create({ data: { userId, groupId, role: "member" } });
+    if (existing) return res.status(400).json({ error: "Request already sent or you are already a member" });
+    // Create join request with pending status
+    const ug = await prisma.userGroup.create({ data: { userId, groupId, role: "member", status: "pending" } });
     res.json(ug);
   } catch (err) {
     console.error(err);
@@ -95,8 +96,98 @@ router.post("/join", requireAuth, async (req: AuthRequest, res) => {
 
 router.get("/user/:userId", async (req, res) => {
   const userId = Number(req.params.userId);
-  const ugs = await prisma.userGroup.findMany({ where: { userId }, include: { group: true } });
-  res.json(ugs.map(u => u.group));
+  const ugs = await prisma.userGroup.findMany({ 
+    where: { userId, status: "approved" }, 
+    include: { 
+      group: {
+        include: {
+          userGroups: { where: { status: "approved" } }
+        }
+      } 
+    } 
+  });
+  res.json(ugs.map(u => ({ ...u.group, _count: { userGroups: u.group.userGroups.length } })));
+});
+
+// Groups for current user (approved memberships)
+router.get("/mine", requireAuth, async (req: AuthRequest, res) => {
+  const userId = req.userId!;
+  const ugs = await prisma.userGroup.findMany({ 
+    where: { userId, status: "approved" }, 
+    include: { 
+      group: {
+        include: {
+          userGroups: { where: { status: "approved" } }
+        }
+      } 
+    } 
+  });
+  res.json(ugs.map(u => ({ ...u.group, _count: { userGroups: u.group.userGroups.length } })));
+});
+
+// Get groups created by user
+router.get("/created", requireAuth, async (req: AuthRequest, res) => {
+  const userId = req.userId!;
+  const groups = await prisma.group.findMany({ 
+    where: { createdBy: userId },
+    include: { 
+      groupTags: { include: { tag: true } },
+      userGroups: { where: { status: "approved" } }
+    }
+  });
+  res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name), _count: { userGroups: g.userGroups.length } })));
+});
+
+// Get pending requests for a group (admin only)
+router.get("/requests/:groupId", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const groupId = Number(req.params.groupId);
+    
+    // Check if user is admin of this group
+    const adminCheck = await prisma.userGroup.findFirst({ 
+      where: { userId, groupId, role: "admin" } 
+    });
+    if (!adminCheck) return res.status(403).json({ error: "Not authorized" });
+    
+    // Get pending requests
+    const requests = await prisma.userGroup.findMany({
+      where: { groupId, status: "pending" },
+      include: { user: { select: { id: true, name: true, email: true, year: true, course: true } } }
+    });
+    res.json(requests);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Approve or reject join request
+router.post("/request/update", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const { requestId, status } = req.body; // status: approved or rejected
+    
+    // Get the request
+    const request = await prisma.userGroup.findUnique({ where: { id: requestId } });
+    if (!request) return res.status(404).json({ error: "Request not found" });
+    
+    // Check if user is admin of this group
+    const adminCheck = await prisma.userGroup.findFirst({ 
+      where: { userId, groupId: request.groupId, role: "admin" } 
+    });
+    if (!adminCheck) return res.status(403).json({ error: "Not authorized" });
+    
+    // Update status
+    const updated = await prisma.userGroup.update({
+      where: { id: requestId },
+      data: { status }
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 
 router.get("/suggested", requireAuth, async (req: AuthRequest, res) => {

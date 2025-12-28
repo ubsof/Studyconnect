@@ -127,3 +127,100 @@
   font-size: 14px;
   resize: none;
 }
+
+/* ============================
+   CREATED GROUPS SECTION
+============================ */
+.created-groups-section {
+  margin-top: 40px;
+  background: white;
+  padding: 30px;
+  border-radius: 18px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 20px;
+}
+
+.empty-message {
+  color: #64748B;
+  text-align: center;
+  padding: 20px;
+}
+
+.groups-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.group-item {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  background: #FAFAFA;
+  text-decoration: none;
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+
+.group-item:hover {
+  background: #F8FAFC;
+  border-color: #6366F1;
+  transform: translateX(4px);
+}
+
+.group-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.group-details {
+  flex: 1;
+}
+
+.group-details h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: #0F172A;
+  margin: 0 0 5px 0;
+}
+
+.group-desc {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0 0 5px 0;
+}
+
+.group-members {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+.manage-badge {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #6366F1, #4F46E5);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}

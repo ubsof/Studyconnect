@@ -6,6 +6,7 @@ import Profile from "./Profile";
 import CreateGroup from "./CreateGroup";
 import Register from "./Register";
 import StudyGroups from "./StudyGroups";
+import ManageGroup from "./ManageGroup";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/profile" element={<Profile />} />
       <Route path="/creategroup" element={<CreateGroup />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/manage-group/:groupId" element={<ManageGroup />} />
     </Routes>
   );
 }

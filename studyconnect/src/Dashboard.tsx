@@ -6,6 +6,7 @@ import api from "./services/api";
 export default function Dashboard() {
   const [events, setEvents] = useState<any[]>([]);
   const [suggested, setSuggested] = useState<any[]>([]);
+  const [myGroups, setMyGroups] = useState<any[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -21,6 +22,13 @@ export default function Dashboard() {
         setSuggested(sg || []);
       } catch (err) {
         setSuggested([]);
+      }
+
+      try {
+        const mg = await api.getMyGroups();
+        setMyGroups(Array.isArray(mg) ? mg : []);
+      } catch (err) {
+        setMyGroups([]);
       }
     })();
   }, []);
@@ -57,6 +65,7 @@ export default function Dashboard() {
               <h3>Create Study Group</h3>
               <p>Start a new group</p>
             </div>
+            <Link to="/creategroup" className="action-button">Create</Link>
           </div>
 
           <div className="action-card">
@@ -64,14 +73,40 @@ export default function Dashboard() {
               <h3>Find Groups</h3>
               <p>Join existing groups</p>
             </div>
+            <Link to="/studygroups" className="action-button">Browse</Link>
           </div>
         </div>
 
         {/* STUDY GROUPS */}
         <div className="my-study-groups">
-          <h3>My Study Groups</h3>
+          <div className="my-groups-header">
+            <h3>My Study Groups</h3>
+            <Link to="/studygroups" className="view-all-link">View All</Link>
+          </div>
           <div className="study-group-cards">
-            <div className="study-group-card">No groups joined yet</div>
+            {myGroups.length === 0 ? (
+              <div className="study-group-card-empty">No groups joined yet</div>
+            ) : (
+              myGroups.slice(0, 3).map((g) => (
+                <div key={g.id} className="study-group-card-detailed">
+                  <div className="card-header">
+                    <div className="card-left">
+                      <div className="group-icon-small">{g.subject?.charAt(0).toUpperCase() || "G"}</div>
+                      <div className="group-title-section">
+                        <strong className="group-title">{g.subject}</strong>
+                        <p className="member-count">{g._count?.userGroups || 0}/{g.capacity || 0} members</p>
+                      </div>
+                    </div>
+                    <span className="active-badge">Active</span>
+                  </div>
+                  <div className="card-body">
+                    <p className="group-desc">{g.smallDesc}</p>
+                    <p className="group-time">⏰ {new Date(g.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="group-location">📍 Location: {g.location}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

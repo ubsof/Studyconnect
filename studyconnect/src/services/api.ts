@@ -56,6 +56,30 @@ export async function joinGroup(groupId: number) {
   return res.json();
 }
 
+export async function getMyGroups() {
+  const res = await fetch(`${BASE}/groups/mine`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function getCreatedGroups() {
+  const res = await fetch(`${BASE}/groups/created`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function getGroupRequests(groupId: number) {
+  const res = await fetch(`${BASE}/groups/requests/${groupId}`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function updateRequest(requestId: number, status: string) {
+  const res = await fetch(`${BASE}/groups/request/update`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ requestId, status })
+  });
+  return res.json();
+}
+
 export async function suggested() {
   const res = await fetch(`${BASE}/groups/suggested`, { headers: { ...authHeaders() } });
   return res.json();
@@ -66,4 +90,4 @@ export async function upcomingEvents() {
   return res.json();
 }
 
-export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, suggested, upcomingEvents };
+export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, updateRequest, suggested, upcomingEvents };

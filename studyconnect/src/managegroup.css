@@ -1,0 +1,189 @@
+/* ============================
+   MAIN LAYOUT
+============================ */
+.manage-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+  background: #F8FAFC;
+  font-family: system-ui, Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* ============================
+   LEFT SIDEBAR
+============================ */
+.sidebar-left {
+  background: white;
+  border-right: 1px solid #E2E8F0;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-left .brand {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 35px;
+  color: #1E293B;
+}
+
+.sidebar-left .nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-left .nav-item {
+  display: block;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #475569;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+
+.sidebar-left .nav-item:hover {
+  background: #EEF2FF;
+  color: #4338CA;
+}
+
+.sidebar-left .nav-item.active {
+  background: #EEF2FF;
+  color: #4338CA;
+}
+
+/* ============================
+   MAIN CONTENT
+============================ */
+.manage-content {
+  padding: 35px;
+  overflow-y: auto;
+}
+
+.manage-content .header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 8px;
+}
+
+.manage-content .header p {
+  color: #64748B;
+  margin-bottom: 30px;
+}
+
+/* ============================
+   REQUESTS CONTAINER
+============================ */
+.requests-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.request-card {
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.request-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.request-info {
+  flex: 1;
+}
+
+.request-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.request-email {
+  color: #64748B;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.request-details {
+  color: #475569;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.request-time {
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+/* ============================
+   REQUEST ACTIONS
+============================ */
+.request-actions {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.approve-button,
+.reject-button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.approve-button {
+  background: linear-gradient(90deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.approve-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+.reject-button {
+  background: #F1F5F9;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+.reject-button:hover {
+  background: #E2E8F0;
+}
+
+/* ============================
+   LOADING & EMPTY STATES
+============================ */
+.loading,
+.empty {
+  text-align: center;
+  color: #64748B;
+  padding: 40px;
+  font-size: 16px;
+}
