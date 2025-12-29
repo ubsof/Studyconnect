@@ -7,7 +7,6 @@
   height: 100vh;
   background: #F8FAFC;
   font-family: system-ui, Arial, sans-serif;
-  overflow: hidden;
 }
 
 /* ============================
@@ -315,6 +314,7 @@
   display: flex;
   flex-direction: column;
   gap: 26px;
+  overflow-y: auto;
 }
 
 .right-sidebar h3 {
@@ -330,6 +330,8 @@
   border-radius: 18px;
   border: 1px solid #E2E8F0;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .upcoming-events p,

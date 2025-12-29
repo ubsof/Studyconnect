@@ -20,20 +20,21 @@ model User {
 }
 
 model Group {
-  id          Int        @id @default(autoincrement())
-  subject     String
-  smallDesc   String
-  description String
-  startTime   DateTime
-  endTime     DateTime
-  capacity    Int
-  typeOfStudy String
-  language    String
-  location    String
-  createdBy   Int
-  createdAt   DateTime   @default(now())
-  userGroups  UserGroup[]
-  groupTags   GroupTag[]
+  id            Int        @id @default(autoincrement())
+  subject       String
+  smallDesc     String
+  description   String
+  startTime     DateTime
+  endTime       DateTime
+  capacity      Int
+  typeOfStudy   String
+  scheduleType  String     @default("one time")
+  language      String
+  location      String
+  createdBy     Int
+  createdAt     DateTime   @default(now())
+  userGroups    UserGroup[]
+  groupTags     GroupTag[]
 }
 
 model UserGroup {

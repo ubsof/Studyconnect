@@ -8,6 +8,7 @@ export default function StudyGroups() {
   const [groups, setGroups] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
   const [suggestedGroups, setSuggestedGroups] = useState<any[]>([]);
+  const [myGroups, setMyGroups] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [emptyMessage, setEmptyMessage] = useState<string | null>(null);
@@ -16,6 +17,7 @@ export default function StudyGroups() {
     loadGroups();
     loadEvents();
     loadSuggested();
+    loadMyGroups();
   }, []);
 
   async function loadGroups() {
@@ -75,6 +77,15 @@ export default function StudyGroups() {
       setSuggestedGroups(data || []);
     } catch (err) {
       setSuggestedGroups([]);
+    }
+  }
+
+  async function loadMyGroups() {
+    try {
+      const data = await api.getMyGroups();
+      setMyGroups(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setMyGroups([]);
     }
   }
 
@@ -148,6 +159,7 @@ export default function StudyGroups() {
                   </p>
                   <p className="group-detail"><strong>Language:</strong> {group.language || "Any"}</p>
                   <p className="group-detail"><strong>Type of Study:</strong> {group.typeOfStudy}</p>
+                  <p className="group-detail"><strong>Schedule Type:</strong> {group.scheduleType}</p>
                   <button onClick={() => handleJoin(group.id)} className="join-button">
                     Request to Join
                   </button>
@@ -162,23 +174,21 @@ export default function StudyGroups() {
       <aside className="sidebar-right">
         <div className="sidebar-section">
           <h3>Upcoming Events</h3>
-          {events.length === 0 ? (
+          {myGroups.length === 0 ? (
             <p className="muted">No upcoming events</p>
           ) : (
-            <ul className="event-list">
-              {events.map((ev: any, idx: number) => (
-                <li key={ev.id}>
-                  <span
-                    className="event-dot"
-                    style={{ background: eventColors[idx % eventColors.length] }}
-                  ></span>
-                  <div>
-                    <strong>{ev.title}</strong>
-                    <p>{new Date(ev.startTime).toLocaleString()}</p>
+            <div className="event-list">
+              {myGroups.map((g: any, idx: number) => (
+                <div key={g.id} className="event-item">
+                  <div className="event-icon" style={{ background: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'][idx % 5] }}>
+                    {g.subject?.charAt(0).toUpperCase() || "E"}
                   </div>
-                </li>
+                  <div className="event-info">
+                    <strong>{g.subject}</strong>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
 
@@ -187,20 +197,15 @@ export default function StudyGroups() {
           {suggestedGroups.length === 0 ? (
             <p className="muted">No suggestions yet</p>
           ) : (
-            <div className="suggested-list">
-              {suggestedGroups.map((g: any, idx: number) => (
-                <div className="suggested-card" key={g.id}>
-                  <div className={`suggested-icon ${idx % 2 === 0 ? "red" : "green"}`}>
-                    {g.subject?.charAt(0).toUpperCase() || "G"}
+            <div className="event-list">
+              {suggestedGroups.slice(0, 4).map((g: any, idx: number) => (
+                <div key={g.id} className="event-item">
+                  <div className="event-icon" style={{ background: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'][idx % 5] }}>
+                    {g.subject?.charAt(0).toUpperCase() || "S"}
                   </div>
-                  <div style={{ flex: 1 }}>
+                  <div className="event-info">
                     <strong>{g.subject}</strong>
-                    <p>{g._count?.userGroups || 0} members</p>
-                    <p className="muted">{g.smallDesc}</p>
                   </div>
-                  <button className="join-button" onClick={() => handleJoin(g.id)}>
-                    Join
-                  </button>
                 </div>
               ))}
             </div>

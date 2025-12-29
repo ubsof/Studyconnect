@@ -13,6 +13,7 @@ export default function CreateGroup() {
   const [endTime, setEndTime] = useState("");
   const [capacity, setCapacity] = useState(10);
   const [typeOfStudy, setTypeOfStudy] = useState("");
+  const [scheduleType, setScheduleType] = useState("");
   const [language, setLanguage] = useState("");
   const [location, setLocation] = useState("");
   const [tags, setTags] = useState("");
@@ -30,6 +31,7 @@ export default function CreateGroup() {
         endTime: `1970-01-01T${endTime}:00.000Z`,
         capacity,
         typeOfStudy,
+        scheduleType,
         language,
         location,
         tags: tags.split(",").map(t => t.trim()).filter(Boolean)
@@ -80,18 +82,11 @@ export default function CreateGroup() {
               <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} />
             </div>
 
-            {/* SMALL DESCRIPTION */}
-            <div className="form-row">
-              <div className="icon-box">🧪</div>
-              <label>Small Description <span className="required">*</span></label>
-              <input type="text" value={smallDesc} onChange={(e) => setSmallDesc(e.target.value)} />
-            </div>
-
-            {/* FULL DESCRIPTION */}
+            {/* DESCRIPTION */}
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>Description <span className="required">*</span></label>
-              <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
+              <input type="text" value={smallDesc} onChange={(e) => setSmallDesc(e.target.value)} />
             </div>
 
             {/* START TIME */}
@@ -119,7 +114,25 @@ export default function CreateGroup() {
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>Type of study <span className="required">*</span></label>
-              <input type="text" value={typeOfStudy} onChange={(e) => setTypeOfStudy(e.target.value)} />
+              <select value={typeOfStudy} onChange={(e) => setTypeOfStudy(e.target.value)}>
+                <option value="">Select type of study</option>
+                <option value="Exam revision">Exam revision</option>
+                <option value="Assignment">Assignment</option>
+                <option value="Lecture revision">Lecture revision</option>
+                <option value="Lab revision">Lab revision</option>
+              </select>
+            </div>
+
+            {/* SCHEDULE TYPE */}
+            <div className="form-row">
+              <div className="icon-box">🧪</div>
+              <label>Schedule Type <span className="required">*</span></label>
+              <select value={scheduleType} onChange={(e) => setScheduleType(e.target.value)}>
+                <option value="">Select schedule type</option>
+                <option value="one time">One time</option>
+                <option value="weekly">Weekly</option>
+                <option value="bi weekly">Bi weekly</option>
+              </select>
             </div>
 
             {/* LANGUAGE */}
@@ -149,20 +162,6 @@ export default function CreateGroup() {
         </div>
       </main>
 
-      {/* RIGHT SIDEBAR */}
-      <aside className="right-sidebar">
-
-        <div className="panel">
-          <h3>Upcoming Events</h3>
-          <p>No events scheduled</p>
-        </div>
-
-        <div className="panel">
-          <h3>Suggested Study Groups</h3>
-          <p>No suggestions yet</p>
-        </div>
-
-      </aside>
     </div>
   );
 }

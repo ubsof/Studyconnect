@@ -14,6 +14,7 @@ router.post("/create", requireAuth, async (req: AuthRequest, res) => {
       endTime,
       capacity,
       typeOfStudy,
+      scheduleType,
       language,
       location,
       tags = []
@@ -29,6 +30,7 @@ router.post("/create", requireAuth, async (req: AuthRequest, res) => {
         endTime: new Date(endTime),
         capacity: Number(capacity) || 0,
         typeOfStudy,
+        scheduleType,
         language,
         location,
         createdBy: userId

@@ -83,13 +83,12 @@ export default function Dashboard() {
         <div className="my-study-groups">
           <div className="my-groups-header">
             <h3>My Study Groups</h3>
-            <Link to="/studygroups" className="view-all-link">View All</Link>
           </div>
           <div className="study-group-cards">
             {myGroups.length === 0 ? (
               <div className="study-group-card-empty">No groups joined yet</div>
             ) : (
-              myGroups.slice(0, 3).map((g) => (
+              myGroups.map((g) => (
                 <div key={g.id} className="study-group-card-detailed">
                   <div className="card-header">
                     <div className="card-left">
@@ -139,7 +138,7 @@ export default function Dashboard() {
           <h3>Suggested Study Groups</h3>
           {suggested.length === 0 ? <p>No suggestions yet</p> : (
             <div className="event-list">
-              {suggested.map((g, idx) => (
+              {suggested.slice(0, 4).map((g, idx) => (
                 <div key={g.id} className="event-item">
                   <div className="event-icon" style={{ background: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'][idx % 5] }}>
                     {g.subject?.charAt(0).toUpperCase() || "S"}
