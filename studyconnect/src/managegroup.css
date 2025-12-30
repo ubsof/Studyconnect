@@ -146,6 +146,7 @@
   flex-shrink: 0;
 }
 
+.view-profile-button,
 .approve-button,
 .reject-button {
   padding: 10px 20px;
@@ -154,6 +155,17 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 120ms ease;
+}
+
+.view-profile-button {
+  background: linear-gradient(90deg, #6366F1, #4F46E5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.view-profile-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
 }
 
 .approve-button {
@@ -186,4 +198,123 @@
   color: #64748B;
   padding: 40px;
   font-size: 16px;
+}
+
+/* ============================
+   PROFILE MODAL
+============================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 18px;
+  padding: 30px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.modal-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 32px;
+  color: #64748B;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 120ms ease;
+}
+
+.modal-close:hover {
+  color: #0F172A;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-modal-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 40px;
+  font-weight: 700;
+  margin: 0 auto 10px;
+}
+
+.profile-modal-name {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 20px 0;
+}
+
+.profile-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-modal-field strong {
+  font-size: 14px;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-modal-field:not(:has(.profile-modal-text)) {
+  font-size: 16px;
+  color: #0F172A;
+}
+
+.profile-modal-text {
+  font-size: 15px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 4px 0 0 0;
+  padding: 12px;
+  background: #F8FAFC;
+  border-radius: 8px;
 }

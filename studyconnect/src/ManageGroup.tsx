@@ -8,6 +8,8 @@ export default function ManageGroup() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
     loadRequests();
@@ -56,6 +58,28 @@ export default function ManageGroup() {
     }
   }
 
+  function handleViewProfile(userId: number, userName: string, userEmail: string, userYear: string, userCourse: string) {
+    const savedProfile = localStorage.getItem(`profile_${userId}`);
+    let profileData = { aboutMe: "", hobby: "", language: "", nationality: "", funFact: "" };
+    
+    if (savedProfile) {
+      try {
+        profileData = JSON.parse(savedProfile);
+      } catch (e) {
+        console.error("Failed to parse profile data");
+      }
+    }
+    
+    setSelectedProfile({
+      name: userName,
+      email: userEmail,
+      year: userYear,
+      course: userCourse,
+      ...profileData
+    });
+    setShowProfileModal(true);
+  }
+
   return (
     <div className="manage-layout">
       {/* LEFT SIDEBAR */}
@@ -100,6 +124,9 @@ export default function ManageGroup() {
                     <p className="request-time">Requested: {req.joinedAt ? new Date(req.joinedAt).toLocaleString() : "-"}</p>
                   </div>
                   <div className="request-actions">
+                    <button onClick={() => handleViewProfile(req.user?.id, req.user?.name, req.user?.email, req.user?.year, req.user?.course)} className="view-profile-button">
+                      View Profile
+                    </button>
                     <button onClick={() => handleApprove(req.id)} className="approve-button">
                       Approve
                     </button>
@@ -110,6 +137,59 @@ export default function ManageGroup() {
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {/* PROFILE MODAL */}
+        {showProfileModal && selectedProfile && (
+          <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2>User Profile</h2>
+                <button className="modal-close" onClick={() => setShowProfileModal(false)}>&times;</button>
+              </div>
+              <div className="modal-body">
+                <div className="profile-modal-avatar">
+                  {selectedProfile.name?.charAt(0).toUpperCase() || "U"}
+                </div>
+                <h3 className="profile-modal-name">{selectedProfile.name}</h3>
+                <div className="profile-modal-field">
+                  <strong>Email:</strong> {selectedProfile.email}
+                </div>
+                <div className="profile-modal-field">
+                  <strong>Year:</strong> {selectedProfile.year || "N/A"}
+                </div>
+                <div className="profile-modal-field">
+                  <strong>Course:</strong> {selectedProfile.course || "N/A"}
+                </div>
+                {selectedProfile.aboutMe && (
+                  <div className="profile-modal-field">
+                    <strong>About:</strong>
+                    <p className="profile-modal-text">{selectedProfile.aboutMe}</p>
+                  </div>
+                )}
+                {selectedProfile.hobby && (
+                  <div className="profile-modal-field">
+                    <strong>Hobby:</strong> {selectedProfile.hobby}
+                  </div>
+                )}
+                {selectedProfile.language && (
+                  <div className="profile-modal-field">
+                    <strong>Language:</strong> {selectedProfile.language}
+                  </div>
+                )}
+                {selectedProfile.nationality && (
+                  <div className="profile-modal-field">
+                    <strong>Nationality:</strong> {selectedProfile.nationality}
+                  </div>
+                )}
+                {selectedProfile.funFact && (
+                  <div className="profile-modal-field">
+                    <strong>Fun Fact:</strong> {selectedProfile.funFact}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </main>

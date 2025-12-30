@@ -8,12 +8,30 @@ export default function ProfilePage() {
   const [user, setUser] = useState<{ id: number; email: string; name?: string; year?: string; course?: string } | null>(null);
   const [createdGroups, setCreatedGroups] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [aboutMe, setAboutMe] = useState("");
+  const [hobby, setHobby] = useState("");
+  const [language, setLanguage] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [funFact, setFunFact] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await api.me();
-        if (res && res.id) setUser(res);
+        if (res && res.id) {
+          setUser(res);
+          // Load saved profile data
+          const savedProfile = localStorage.getItem(`profile_${res.id}`);
+          if (savedProfile) {
+            const data = JSON.parse(savedProfile);
+            setAboutMe(data.aboutMe || "");
+            setHobby(data.hobby || "");
+            setLanguage(data.language || "");
+            setNationality(data.nationality || "");
+            setFunFact(data.funFact || "");
+          }
+        }
         else setError(res?.error || "Not authenticated");
       } catch (e) {
         setError("Failed to load profile");
@@ -37,6 +55,18 @@ export default function ProfilePage() {
       localStorage.removeItem("token");
     } catch {}
     navigate("/login");
+  }
+
+  async function handleSave() {
+    try {
+      // Store profile data in localStorage for now
+      const profileData = { aboutMe, hobby, language, nationality, funFact };
+      localStorage.setItem(`profile_${user?.id}`, JSON.stringify(profileData));
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch (e) {
+      setError("Failed to save profile");
+    }
   }
 
   return (
@@ -86,13 +116,56 @@ export default function ProfilePage() {
           <textarea
             className="about-box"
             placeholder='"About me……"'
+            value={aboutMe}
+            onChange={(e) => setAboutMe(e.target.value)}
           ></textarea>
 
-          <p className="profile-line"><strong>Hobby:</strong></p>
-          <p className="profile-line"><strong>Language:</strong></p>
-          <p className="profile-line"><strong>Nationality:</strong></p>
-          <p className="profile-line"><strong>Fun Fact about me:</strong></p>
+          <div className="profile-field">
+            <strong>Hobby:</strong>
+            <input
+              type="text"
+              className="profile-input"
+              placeholder="e.g., Reading, Gaming, Sports"
+              value={hobby}
+              onChange={(e) => setHobby(e.target.value)}
+            />
+          </div>
 
+          <div className="profile-field">
+            <strong>Language:</strong>
+            <input
+              type="text"
+              className="profile-input"
+              placeholder="e.g., English, Spanish"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            />
+          </div>
+
+          <div className="profile-field">
+            <strong>Nationality:</strong>
+            <input
+              type="text"
+              className="profile-input"
+              placeholder="e.g., British, American"
+              value={nationality}
+              onChange={(e) => setNationality(e.target.value)}
+            />
+          </div>
+
+          <div className="profile-field">
+            <strong>Fun Fact about me:</strong>
+            <input
+              type="text"
+              className="profile-input"
+              placeholder="Share something interesting about yourself"
+              value={funFact}
+              onChange={(e) => setFunFact(e.target.value)}
+            />
+          </div>
+
+          <button className="save-button" onClick={handleSave}>Save Profile</button>
+          {saveSuccess && <div style={{ color: '#059669', marginTop: 8, padding: '12px', background: '#D1FAE5', borderRadius: '8px', fontWeight: 600 }}>✓ Profile saved successfully!</div>}
           {error && <div style={{ color: "#c00", marginTop: 8 }}>{error}</div>}
         </div>
 
