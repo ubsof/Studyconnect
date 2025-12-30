@@ -104,20 +104,19 @@ export default function Dashboard() {
       )}
 
       {/* LEFT SIDEBAR */}
-      <div className="left-sidebar">
-        <h2>StudyConnect</h2>
+      <aside className="left-sidebar">
+        <h2 className="brand">StudyConnect</h2>
 
-        <nav>
-          <ul>
-            <li><Link to="/dashboard" className="active">Dashboard</Link></li>
-            <li><Link to="/studygroups">Study Groups</Link></li>
-            <li><Link to="/creategroup">Create Group</Link></li>
-            <li><Link to="/profile">Profile</Link></li>
-            <li><Link to="/support">Support</Link></li>
-          </ul>
+        <nav className="nav">
+          <Link to="/dashboard" className="nav-item active">Dashboard</Link>
+          <Link to="/studygroups" className="nav-item">Study Groups</Link>
+          <Link to="/creategroup" className="nav-item">Create Group</Link>
+          <Link to="/profile" className="nav-item">Profile</Link>
+          <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
         <SidebarUserCard />
-      </div>
+      </aside>
 
       {/* MAIN CONTENT */}
       <div className="main-content">

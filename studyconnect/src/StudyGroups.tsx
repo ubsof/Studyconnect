@@ -94,7 +94,7 @@ export default function StudyGroups() {
   return (
     <div className="studygroups-layout">
       {/* LEFT SIDEBAR */}
-      <aside className="sidebar-left">
+      <aside className="left-sidebar">
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
@@ -102,6 +102,7 @@ export default function StudyGroups() {
           <Link to="/studygroups" className="nav-item active">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
+          <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
           <Link to="/support" className="nav-item">Support</Link>
         </nav>
 

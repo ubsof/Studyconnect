@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./profile.css";
 import api from "./services/api";
+import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ export default function ProfilePage() {
     <div className="profile-layout">
 
       {/* LEFT SIDEBAR */}
-      <aside className="sidebar-left">
+      <aside className="left-sidebar">
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
@@ -81,16 +82,11 @@ export default function ProfilePage() {
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item active">Profile</Link>
+          <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
           <Link to="/support" className="nav-item">Support</Link>
         </nav>
 
-        <div className="user-card">
-          <div className="avatar"></div>
-          <div className="user-info">
-            <strong>{displayName}</strong>
-            <p>{displayCourse}</p>
-          </div>
-        </div>
+        <SidebarUserCard />
       </aside>
 
       {/* PROFILE MAIN CONTENT */}

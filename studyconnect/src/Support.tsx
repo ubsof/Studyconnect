@@ -14,6 +14,7 @@ export default function Support() {
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
+          <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
           <Link to="/support" className="nav-item active">Support</Link>
         </nav>
 

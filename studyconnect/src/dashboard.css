@@ -24,48 +24,47 @@
    LEFT SIDEBAR
 ============================ */
 .left-sidebar {
-  background: white;
-  border-right: 1px solid #E2E8F0;
-  padding: 28px 22px;
+  width: 240px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
-.left-sidebar h2 {
+.brand {
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 35px;
-  color: #1E293B;
+  color: #6366f1;
+  margin-bottom: 32px;
 }
 
-.left-sidebar nav {
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* push user card to bottom */
+.nav {
+  flex: 1;
 }
 
-.left-sidebar nav ul {
-  padding: 0;
-  list-style: none;
-}
-
-.left-sidebar nav ul li {
-  margin-bottom: 12px;
-}
-
-.left-sidebar nav ul li a {
+.nav-item {
   display: block;
-  padding: 10px 14px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
   border-radius: 8px;
-  font-size: 16px;
-  color: #475569;
-  font-weight: 500;
+  color: #4b5563;
   text-decoration: none;
+  transition: all 0.2s;
 }
 
-.left-sidebar nav ul li a:hover {
-  background: #EEF2FF;
-  color: #4338CA;
+.nav-item:hover {
+  background: #f3f4f6;
+  color: #6366f1;
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
 }
 
 /* User card pinned at bottom */
