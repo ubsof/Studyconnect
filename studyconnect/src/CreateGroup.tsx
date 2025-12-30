@@ -16,7 +16,6 @@ export default function CreateGroup() {
   const [scheduleType, setScheduleType] = useState("");
   const [language, setLanguage] = useState("");
   const [location, setLocation] = useState("");
-  const [tags, setTags] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
@@ -35,8 +34,7 @@ export default function CreateGroup() {
         typeOfStudy,
         scheduleType,
         language,
-        location,
-        tags: tags.split(",").map(t => t.trim()).filter(Boolean)
+        location
       };
       const res = await api.createGroup(payload);
       if (res.group) {
@@ -84,14 +82,24 @@ export default function CreateGroup() {
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>Subject <span className="required">*</span></label>
-              <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} />
+              <input
+                type="text"
+                placeholder="e.g., Calculus exam prep"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
             </div>
 
             {/* DESCRIPTION */}
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>Description <span className="required">*</span></label>
-              <input type="text" value={smallDesc} onChange={(e) => setSmallDesc(e.target.value)} />
+              <input
+                type="text"
+                placeholder="Short summary students will see"
+                value={smallDesc}
+                onChange={(e) => setSmallDesc(e.target.value)}
+              />
             </div>
 
             {/* START TIME */}
@@ -112,7 +120,12 @@ export default function CreateGroup() {
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>How many members <span className="required">*</span></label>
-              <input type="number" value={capacity} onChange={(e) => setCapacity(Number(e.target.value))} />
+              <input
+                type="number"
+                placeholder="Max members (e.g., 10)"
+                value={capacity}
+                onChange={(e) => setCapacity(Number(e.target.value))}
+              />
             </div>
 
             {/* TYPE OF STUDY */}
@@ -144,21 +157,26 @@ export default function CreateGroup() {
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>Language <span className="required">*</span></label>
-              <input type="text" value={language} onChange={(e) => setLanguage(e.target.value)} />
+              <input
+                type="text"
+                placeholder="e.g., English"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+              />
             </div>
 
             {/* LOCATION */}
             <div className="form-row">
               <div className="icon-box">🧪</div>
               <label>Location <span className="required">*</span></label>
-              <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} />
+              <input
+                type="text"
+                placeholder="e.g., Library Room 201 or Zoom link"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
             </div>
 
-            <div className="form-row">
-              <div className="icon-box">🏷️</div>
-              <label>Tags (comma separated)</label>
-              <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="math, python, physics" />
-            </div>
             <div style={{ marginTop: 12 }}>
               <button type="submit">Create Group</button>
               {error && <div style={{ color: '#c00', marginTop: 8 }}>{error}</div>}

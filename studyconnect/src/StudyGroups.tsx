@@ -126,17 +126,6 @@ export default function StudyGroups() {
           <button type="submit" className="search-button">Search</button>
         </form>
 
-        {/* FILTER TAGS */}
-        <div className="filter-tags">
-          <span className="tag">Maths</span>
-          <span className="tag">Computing</span>
-          <span className="tag">physics</span>
-          <span className="tag">English</span>
-          <span className="tag">engineering</span>
-          <span className="tag">Network</span>
-          <span className="tag">Computing</span>
-        </div>
-
         {/* GROUPS GRID */}
         {loading ? (
           <div className="loading">Loading...</div>
@@ -151,7 +140,7 @@ export default function StudyGroups() {
                     {group.subject?.charAt(0).toUpperCase() || "G"}
                   </div>
                   <h3 className="group-title">{group.subject}</h3>
-                  <p className="group-members">{group._count?.userGroups || 0} members</p>
+                  <p className="group-members">{group._count?.userGroups || 0}/{group.capacity || 0} members</p>
                   <p className="group-description">{group.smallDesc}</p>
                   <p className="group-detail"><strong>Location:</strong> {group.location || "N/A"}</p>
                   <p className="group-detail">
