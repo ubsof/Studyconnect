@@ -81,6 +81,7 @@ export default function ProfilePage() {
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item active">Profile</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
 
         <div className="user-card">

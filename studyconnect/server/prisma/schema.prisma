@@ -24,6 +24,7 @@ model Group {
   subject       String
   smallDesc     String
   description   String
+  date          String?
   startTime     DateTime
   endTime       DateTime
   capacity      Int

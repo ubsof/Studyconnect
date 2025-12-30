@@ -102,6 +102,7 @@ export default function StudyGroups() {
           <Link to="/studygroups" className="nav-item active">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
 
         <SidebarUserCard />
@@ -142,6 +143,7 @@ export default function StudyGroups() {
                   <h3 className="group-title">{group.subject}</h3>
                   <p className="group-members">{group._count?.userGroups || 0}/{group.capacity || 0} members</p>
                   <p className="group-description">{group.smallDesc}</p>
+                  <p className="group-detail"><strong>Date:</strong> {group.date || "N/A"}</p>
                   <p className="group-detail"><strong>Location:</strong> {group.location || "N/A"}</p>
                   <p className="group-detail">
                     <strong>Time:</strong> {new Date(group.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(group.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

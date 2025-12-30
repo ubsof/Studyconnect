@@ -113,6 +113,7 @@ export default function Dashboard() {
             <li><Link to="/studygroups">Study Groups</Link></li>
             <li><Link to="/creategroup">Create Group</Link></li>
             <li><Link to="/profile">Profile</Link></li>
+            <li><Link to="/support">Support</Link></li>
           </ul>
         </nav>
         <SidebarUserCard />
@@ -168,6 +169,7 @@ export default function Dashboard() {
                   </div>
                   <div className="card-body">
                     <p className="group-desc">{g.smallDesc}</p>
+                    <p className="group-date">📅 {g.date || "N/A"}</p>
                     <p className="group-time">⏰ {new Date(g.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     <p className="group-location">📍 Location: {g.location}</p>
                   </div>

@@ -9,6 +9,7 @@ export default function CreateGroup() {
   const [subject, setSubject] = useState("");
   const [smallDesc, setSmallDesc] = useState("");
   const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [capacity, setCapacity] = useState(10);
@@ -28,8 +29,9 @@ export default function CreateGroup() {
         subject,
         smallDesc,
         description,
-        startTime: `1970-01-01T${startTime}:00.000Z`,
-        endTime: `1970-01-01T${endTime}:00.000Z`,
+        date,
+        startTime: `${date}T${startTime}:00.000Z`,
+        endTime: `${date}T${endTime}:00.000Z`,
         capacity,
         typeOfStudy,
         scheduleType,
@@ -62,6 +64,7 @@ export default function CreateGroup() {
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item active">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
 
         <SidebarUserCard />
@@ -100,6 +103,13 @@ export default function CreateGroup() {
                 value={smallDesc}
                 onChange={(e) => setSmallDesc(e.target.value)}
               />
+            </div>
+
+            {/* DATE */}
+            <div className="form-row">
+              <div className="icon-box">🧪</div>
+              <label>Date <span className="required">*</span></label>
+              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
 
             {/* START TIME */}
