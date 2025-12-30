@@ -18,10 +18,12 @@ export default function CreateGroup() {
   const [location, setLocation] = useState("");
   const [tags, setTags] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setSuccess(false);
     try {
       const payload = {
         subject,
@@ -38,7 +40,10 @@ export default function CreateGroup() {
       };
       const res = await api.createGroup(payload);
       if (res.group) {
-        navigate("/dashboard");
+        setSuccess(true);
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 2000);
       } else {
         setError(res.error || "Could not create group");
       }
@@ -157,6 +162,7 @@ export default function CreateGroup() {
             <div style={{ marginTop: 12 }}>
               <button type="submit">Create Group</button>
               {error && <div style={{ color: '#c00', marginTop: 8 }}>{error}</div>}
+              {success && <div style={{ color: '#059669', marginTop: 8, padding: '12px', background: '#D1FAE5', borderRadius: '8px', fontWeight: 600 }}>✓ Group created successfully! Redirecting...</div>}
             </div>
           </form>
         </div>
