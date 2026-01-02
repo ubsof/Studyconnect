@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./scholarcalendar.css";
 import SidebarUserCard from "./components/SidebarUserCard";
+import api from "./services/api";
 
 interface DayNote {
   [date: string]: string;
@@ -13,6 +14,9 @@ export default function ScholarCalendar() {
   const [notes, setNotes] = useState<DayNote>({});
   const [editText, setEditText] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<any | null>(null);
+  const [showGroupModal, setShowGroupModal] = useState(false);
 
   useEffect(() => {
     // Load notes from localStorage
@@ -20,7 +24,19 @@ export default function ScholarCalendar() {
     if (savedNotes) {
       setNotes(JSON.parse(savedNotes));
     }
+    
+    // Load user's groups
+    loadMyGroups();
   }, []);
+
+  async function loadMyGroups() {
+    try {
+      const data = await api.getMyGroups();
+      setMyGroups(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setMyGroups([]);
+    }
+  }
 
   const saveNotes = (updatedNotes: DayNote) => {
     setNotes(updatedNotes);
@@ -74,6 +90,31 @@ export default function ScholarCalendar() {
     setEditText("");
   };
 
+  const handleGroupClick = (e: React.MouseEvent, group: any) => {
+    e.stopPropagation();
+    setSelectedGroup(group);
+    setShowGroupModal(true);
+  };
+
+  const handleCloseGroupModal = () => {
+    setShowGroupModal(false);
+    setSelectedGroup(null);
+  };
+
+  const getGroupsForDate = (year: number, month: number, day: number) => {
+    const dateString = `${year}-${month + 1}-${day}`;
+    return myGroups.filter(group => {
+      if (!group.date) return false;
+      // Group date might be in format "2026-1-2" or "2026-01-02"
+      const groupDateParts = group.date.split('-');
+      if (groupDateParts.length !== 3) return false;
+      const groupYear = parseInt(groupDateParts[0]);
+      const groupMonth = parseInt(groupDateParts[1]);
+      const groupDay = parseInt(groupDateParts[2]);
+      return groupYear === year && groupMonth === (month + 1) && groupDay === day;
+    });
+  };
+
   const renderCalendar = () => {
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
     const days = [];
@@ -86,7 +127,8 @@ export default function ScholarCalendar() {
     // Add cells for each day of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${day}`;
-      const hasNote = notes[dateKey];
+      const noteText = notes[dateKey];
+      const dayGroups = getGroupsForDate(currentDate.getFullYear(), currentDate.getMonth(), day);
       const isToday =
         day === new Date().getDate() &&
         currentDate.getMonth() === new Date().getMonth() &&
@@ -95,11 +137,28 @@ export default function ScholarCalendar() {
       days.push(
         <div
           key={day}
-          className={`calendar-day ${isToday ? "today" : ""} ${hasNote ? "has-note" : ""}`}
+          className={`calendar-day ${isToday ? "today" : ""} ${noteText ? "has-note" : ""}`}
           onClick={() => handleDateClick(day)}
         >
           <span className="day-number">{day}</span>
-          {hasNote && <div className="note-indicator">📝</div>}
+          {noteText && (
+            <div className="note-preview">
+              {noteText.length > 60 ? noteText.substring(0, 60) + "..." : noteText}
+            </div>
+          )}
+          {dayGroups.length > 0 && (
+            <div className="groups-list">
+              {dayGroups.map((group) => (
+                <div
+                  key={group.id}
+                  className="group-tag"
+                  onClick={(e) => handleGroupClick(e, group)}
+                >
+                  📚 {group.subject}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
@@ -186,6 +245,38 @@ export default function ScholarCalendar() {
             <div className="modal-footer">
               <button className="cancel-button" onClick={handleCloseModal}>Cancel</button>
               <button className="save-button" onClick={handleSaveNote}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GROUP DETAILS MODAL */}
+      {showGroupModal && selectedGroup && (
+        <div className="modal-overlay" onClick={handleCloseGroupModal}>
+          <div className="modal-content group-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{selectedGroup.subject}</h3>
+              <button className="close-button" onClick={handleCloseGroupModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="group-detail-item">
+                <strong>📍 Location:</strong> {selectedGroup.location || "N/A"}
+              </div>
+              <div className="group-detail-item">
+                <strong>⏰ Time:</strong> {new Date(selectedGroup.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(selectedGroup.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <div className="group-detail-item">
+                <strong>📅 Date:</strong> {selectedGroup.date || "N/A"}
+              </div>
+              <div className="group-detail-item">
+                <strong>📝 Description:</strong> {selectedGroup.smallDesc || "No description"}
+              </div>
+              <div className="group-detail-item">
+                <strong>👥 Members:</strong> {selectedGroup._count?.userGroups || 0}/{selectedGroup.capacity || 0}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-button" onClick={handleCloseGroupModal}>Close</button>
             </div>
           </div>
         </div>
