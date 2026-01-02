@@ -2,65 +2,68 @@
    MAIN LAYOUT
 ============================ */
 .manage-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
+  display: flex;
   height: 100vh;
-  background: #F8FAFC;
-  font-family: system-ui, Arial, sans-serif;
-  overflow: hidden;
+  background: #f9fafb;
 }
 
 /* ============================
    LEFT SIDEBAR
 ============================ */
-.sidebar-left {
-  background: white;
-  border-right: 1px solid #E2E8F0;
-  padding: 28px 22px;
+.left-sidebar {
+  width: 240px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
-.sidebar-left .brand {
+.brand {
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 35px;
-  color: #1E293B;
+  color: #6366f1;
+  margin-bottom: 32px;
 }
 
-.sidebar-left .nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.nav {
+  flex: 1;
 }
 
-.sidebar-left .nav-item {
+.nav-item {
   display: block;
-  padding: 10px 14px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
   border-radius: 8px;
-  font-size: 16px;
-  color: #475569;
-  font-weight: 500;
+  color: #4b5563;
   text-decoration: none;
-  transition: background 120ms ease;
+  transition: all 0.2s;
 }
 
-.sidebar-left .nav-item:hover {
-  background: #EEF2FF;
-  color: #4338CA;
+.nav-item:hover {
+  background: #f3f4f6;
+  color: #6366f1;
 }
 
-.sidebar-left .nav-item.active {
-  background: #EEF2FF;
-  color: #4338CA;
+.nav-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
 }
 
 /* ============================
    MAIN CONTENT
 ============================ */
 .manage-content {
-  padding: 35px;
+  flex: 1;
+  padding: 40px;
   overflow-y: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .manage-content .header h1 {
@@ -219,11 +222,11 @@
 .modal-content {
   background: white;
   border-radius: 18px;
-  padding: 30px;
+  display: flex;
+  flex-direction: column;
   max-width: 600px;
   width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
+  max-height: 90vh;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
@@ -231,9 +234,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
+  padding: 30px 30px 15px 30px;
   border-bottom: 1px solid #E2E8F0;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -241,6 +244,15 @@
   font-weight: 700;
   color: #0F172A;
   margin: 0;
+}
+
+.modal-body {
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .modal-close {
@@ -261,12 +273,6 @@
 
 .modal-close:hover {
   color: #0F172A;
-}
-
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
 .profile-modal-avatar {

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import "./managegroup.css";
 import api from "./services/api";
+import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function ManageGroup() {
   const { groupId } = useParams();
@@ -83,7 +84,7 @@ export default function ManageGroup() {
   return (
     <div className="manage-layout">
       {/* LEFT SIDEBAR */}
-      <aside className="sidebar-left">
+      <aside className="left-sidebar">
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
@@ -91,7 +92,11 @@ export default function ManageGroup() {
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
+          <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
+
+        <SidebarUserCard />
       </aside>
 
       {/* MAIN CONTENT */}
