@@ -24,6 +24,41 @@ export default function CreateGroup() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+
+    // Validation for required fields
+    if (!subject.trim()) {
+      setError("Subject is required");
+      return;
+    }
+    if (!smallDesc.trim()) {
+      setError("Description is required");
+      return;
+    }
+    if (!date.trim()) {
+      setError("Date is required");
+      return;
+    }
+    if (!startTime.trim()) {
+      setError("Start Time is required");
+      return;
+    }
+    if (!capacity || capacity <= 0) {
+      setError("How many members is required");
+      return;
+    }
+    if (!scheduleType.trim()) {
+      setError("Schedule Type is required");
+      return;
+    }
+    if (!language.trim()) {
+      setError("Language is required");
+      return;
+    }
+    if (!location.trim()) {
+      setError("Location is required");
+      return;
+    }
+
     try {
       const payload = {
         subject,
@@ -60,12 +95,12 @@ export default function CreateGroup() {
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
-          <Link to="/dashboard" className="nav-item">Dashboard</Link>
+          <Link to="/dashboard" className="nav-item">Homepage</Link>
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item active">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item">Support</Link>
+          <Link to="/support" className="nav-item">Wellbeing Support</Link>
         </nav>
 
         <SidebarUserCard />
@@ -123,7 +158,7 @@ export default function CreateGroup() {
             {/* END TIME */}
             <div className="form-row">
               <div className="icon-box">🧪</div>
-              <label>End Time <span className="required">*</span></label>
+              <label>End Time</label>
               <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             </div>
 
@@ -142,7 +177,7 @@ export default function CreateGroup() {
             {/* TYPE OF STUDY */}
             <div className="form-row">
               <div className="icon-box">🧪</div>
-              <label>Type of study <span className="required">*</span></label>
+              <label>Type of study</label>
               <select value={typeOfStudy} onChange={(e) => setTypeOfStudy(e.target.value)}>
                 <option value="">Select type of study</option>
                 <option value="Exam revision">Exam revision</option>

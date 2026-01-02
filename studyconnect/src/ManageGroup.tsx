@@ -88,12 +88,12 @@ export default function ManageGroup() {
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
-          <Link to="/dashboard" className="nav-item">Dashboard</Link>
+          <Link to="/dashboard" className="nav-item">Homepage</Link>
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item">Support</Link>
+          <Link to="/support" className="nav-item">Wellbeing Support</Link>
         </nav>
 
         <SidebarUserCard />

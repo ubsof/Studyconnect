@@ -10,12 +10,12 @@ export default function Support() {
         <h2 className="brand">StudyConnect</h2>
 
         <nav className="nav">
-          <Link to="/dashboard" className="nav-item">Dashboard</Link>
+          <Link to="/dashboard" className="nav-item">Homepage</Link>
           <Link to="/studygroups" className="nav-item">Study Groups</Link>
           <Link to="/creategroup" className="nav-item">Create Group</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item active">Support</Link>
+          <Link to="/support" className="nav-item active">Wellbeing Support</Link>
         </nav>
 
         <SidebarUserCard />
@@ -50,6 +50,18 @@ export default function Support() {
             <div className="support-icon">✏️</div>
             <h3>Learning & Study</h3>
             <p>Discover study tips, learning strategies, and skills development resources</p>
+            <span className="external-link">Visit Resource →</span>
+          </a>
+
+          <a 
+            href="https://www.gla.ac.uk/myglasgow/counselling/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="support-card"
+          >
+            <div className="support-icon">💬</div>
+            <h3>Counselling Services</h3>
+            <p>Access confidential counselling and mental health support services</p>
             <span className="external-link">Visit Resource →</span>
           </a>
         </div>
