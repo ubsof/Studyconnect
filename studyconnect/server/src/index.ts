@@ -8,7 +8,17 @@ import eventsRoutes from "./routes/events";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+	.split(",")
+	.map((origin) => origin.trim())
+	.filter(Boolean);
+
+app.use(
+	cors({
+		origin: allowedOrigins.length ? allowedOrigins : undefined,
+		credentials: true,
+	})
+);
 app.use(express.json());
 
 app.use("/auth", authRoutes);
