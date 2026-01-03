@@ -6,7 +6,7 @@ import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function StudyGroups() {
   const [groups, setGroups] = useState<any[]>([]);
-  const [setEvents] = useState<any[]>([]);
+  const [, setEvents] = useState<any[]>([]);
   const [suggestedGroups, setSuggestedGroups] = useState<any[]>([]);
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
