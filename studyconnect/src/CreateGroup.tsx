@@ -8,7 +8,7 @@ export default function CreateGroup() {
   const navigate = useNavigate();
   const [subject, setSubject] = useState("");
   const [smallDesc, setSmallDesc] = useState("");
-  const [description, setDescription] = useState("");
+  const [description] = useState("");
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");

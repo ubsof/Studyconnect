@@ -102,7 +102,7 @@ export default function ScholarCalendar() {
   };
 
   const getGroupsForDate = (year: number, month: number, day: number) => {
-    const dateString = `${year}-${month + 1}-${day}`;
+    // const dateString = `${year}-${month + 1}-${day}`;
     return myGroups.filter(group => {
       if (!group.date) return false;
       // Group date might be in format "2026-1-2" or "2026-01-02"

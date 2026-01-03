@@ -5,7 +5,7 @@ import api from "./services/api";
 import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function Dashboard() {
-  const [events, setEvents] = useState<any[]>([]);
+  const [setEvents] = useState<any[]>([]);
   const [suggested, setSuggested] = useState<any[]>([]);
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);

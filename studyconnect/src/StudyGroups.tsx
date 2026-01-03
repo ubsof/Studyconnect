@@ -6,7 +6,7 @@ import SidebarUserCard from "./components/SidebarUserCard";
 
 export default function StudyGroups() {
   const [groups, setGroups] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
+  const [setEvents] = useState<any[]>([]);
   const [suggestedGroups, setSuggestedGroups] = useState<any[]>([]);
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,7 +89,7 @@ export default function StudyGroups() {
     }
   }
 
-  const eventColors = ["#3b82f6", "#8b5cf6", "#10b981"];
+  // const eventColors = ["#3b82f6", "#8b5cf6", "#10b981"];
 
   return (
     <div className="studygroups-layout">
