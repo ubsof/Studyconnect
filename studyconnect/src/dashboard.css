@@ -102,6 +102,7 @@
 .main-content {
   padding: 35px;
   overflow-y: auto;
+  position: relative;
 }
 
 .dashboard-header h2 {

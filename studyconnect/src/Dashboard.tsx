@@ -10,6 +10,8 @@ export default function Dashboard() {
   const [myGroups, setMyGroups] = useState<any[]>([]);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]);
+  const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
 
   useEffect(() => {
     // Check for notification from URL params
@@ -77,6 +79,14 @@ export default function Dashboard() {
       } catch (err) {
         setMyGroups([]);
       }
+
+      // Fetch pending requests for groups I created
+      try {
+        const requests = await api.getAllPendingRequests();
+        setPendingRequests(Array.isArray(requests) ? requests : []);
+      } catch (err) {
+        setPendingRequests([]);
+      }
     })();
   }, []);
 
@@ -120,6 +130,121 @@ export default function Dashboard() {
 
       {/* MAIN CONTENT */}
       <div className="main-content">
+
+        {/* NOTIFICATION BELL */}
+        <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 100 }}>
+          <div 
+            onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              background: pendingRequests.length > 0 ? '#FEF3C7' : '#F3F4F6',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              position: 'relative',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}
+          >
+            <span style={{ fontSize: '20px' }}>🔔</span>
+            {pendingRequests.length > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                background: '#EF4444',
+                color: 'white',
+                borderRadius: '50%',
+                width: '20px',
+                height: '20px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {pendingRequests.length}
+              </span>
+            )}
+          </div>
+
+          {/* Dropdown */}
+          {showNotificationDropdown && (
+            <div style={{
+              position: 'absolute',
+              top: '50px',
+              right: '0',
+              width: '320px',
+              background: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+              padding: '16px',
+              maxHeight: '400px',
+              overflowY: 'auto'
+            }}>
+              <h4 style={{ margin: '0 0 12px 0', color: '#1F2937' }}>Join Requests</h4>
+              {pendingRequests.length === 0 ? (
+                <p style={{ color: '#6B7280', fontSize: '14px' }}>No pending requests</p>
+              ) : (
+                pendingRequests.map((req) => (
+                  <div key={req.id} style={{
+                    padding: '12px',
+                    background: '#F9FAFB',
+                    borderRadius: '8px',
+                    marginBottom: '8px'
+                  }}>
+                    <p style={{ margin: '0 0 4px 0', fontWeight: 600, color: '#1F2937' }}>
+                      {req.user?.name || 'Unknown User'}
+                    </p>
+                    <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#6B7280' }}>
+                      wants to join <strong>{req.group?.subject || 'your group'}</strong>
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={async () => {
+                          await api.updateRequest(req.id, 'approved');
+                          setPendingRequests(prev => prev.filter(r => r.id !== req.id));
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '6px 12px',
+                          background: '#10B981',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 500
+                        }}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={async () => {
+                          await api.updateRequest(req.id, 'rejected');
+                          setPendingRequests(prev => prev.filter(r => r.id !== req.id));
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '6px 12px',
+                          background: '#EF4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: 500
+                        }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="dashboard-header">
           <h2>Welcome back!</h2>

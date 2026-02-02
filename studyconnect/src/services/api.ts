@@ -71,6 +71,11 @@ export async function getGroupRequests(groupId: number) {
   return res.json();
 }
 
+export async function getAllPendingRequests() {
+  const res = await fetch(`${BASE}/groups/all-pending-requests`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
 export async function updateRequest(requestId: number, status: string) {
   const res = await fetch(`${BASE}/groups/request/update`, {
     method: 'POST',
@@ -90,4 +95,4 @@ export async function upcomingEvents() {
   return res.json();
 }
 
-export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, updateRequest, suggested, upcomingEvents };
+export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents };

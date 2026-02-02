@@ -166,6 +166,38 @@ router.get("/requests/:groupId", requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// Get all pending requests for all groups created by the user
+router.get("/all-pending-requests", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    
+    // Get all groups created by this user
+    const myGroups = await prisma.group.findMany({
+      where: { createdBy: userId },
+      select: { id: true, subject: true }
+    });
+    
+    const groupIds = myGroups.map(g => g.id);
+    
+    // Get all pending requests for these groups
+    const requests = await prisma.userGroup.findMany({
+      where: { 
+        groupId: { in: groupIds }, 
+        status: "pending" 
+      },
+      include: { 
+        user: { select: { id: true, name: true, email: true, year: true, course: true } },
+        group: { select: { id: true, subject: true } }
+      }
+    });
+    
+    res.json(requests);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 // Approve or reject join request
 router.post("/request/update", requireAuth, async (req: AuthRequest, res) => {
   try {
