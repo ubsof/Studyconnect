@@ -8,10 +8,33 @@ export default function Dashboard() {
   const [, setEvents] = useState<any[]>([]);
   const [suggested, setSuggested] = useState<any[]>([]);
   const [myGroups, setMyGroups] = useState<any[]>([]);
+  const [createdGroups, setCreatedGroups] = useState<any[]>([]);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
+  
+  // Edit modal state
+  const [editingGroup, setEditingGroup] = useState<any>(null);
+  const [editForm, setEditForm] = useState({
+    subject: '',
+    smallDesc: '',
+    description: '',
+    date: '',
+    startTime: '',
+    endTime: '',
+    capacity: '',
+    typeOfStudy: '',
+    scheduleType: '',
+    language: '',
+    location: ''
+  });
+  
+  // Member notifications (for group updates)
+  const [memberNotifications, setMemberNotifications] = useState<any[]>([]);
+  
+  // Group members for edit modal
+  const [groupMembers, setGroupMembers] = useState<any[]>([]);
 
   useEffect(() => {
     // Check for notification from URL params
@@ -80,6 +103,14 @@ export default function Dashboard() {
         setMyGroups([]);
       }
 
+      // Fetch groups created by me
+      try {
+        const created = await api.getCreatedGroups();
+        setCreatedGroups(Array.isArray(created) ? created : []);
+      } catch (err) {
+        setCreatedGroups([]);
+      }
+
       // Fetch pending requests for groups I created
       try {
         const requests = await api.getAllPendingRequests();
@@ -87,8 +118,89 @@ export default function Dashboard() {
       } catch (err) {
         setPendingRequests([]);
       }
+
+      // Fetch member notifications (group updates)
+      try {
+        const notifs = await api.getNotifications();
+        setMemberNotifications(Array.isArray(notifs) ? notifs.filter((n: any) => !n.read) : []);
+      } catch (err) {
+        setMemberNotifications([]);
+      }
     })();
   }, []);
+
+  // Handle opening edit modal
+  const handleEditGroup = async (group: any) => {
+    setEditingGroup(group);
+    setEditForm({
+      subject: group.subject || '',
+      smallDesc: group.smallDesc || '',
+      description: group.description || '',
+      date: group.date || '',
+      startTime: group.startTime ? new Date(group.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
+      endTime: group.endTime ? new Date(group.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '',
+      capacity: group.capacity?.toString() || '',
+      typeOfStudy: group.typeOfStudy || '',
+      scheduleType: group.scheduleType || '',
+      language: group.language || '',
+      location: group.location || ''
+    });
+    
+    // Fetch group members
+    try {
+      const members = await api.getGroupMembers(group.id);
+      setGroupMembers(Array.isArray(members) ? members : []);
+    } catch (err) {
+      setGroupMembers([]);
+    }
+  };
+
+  // Handle saving group changes
+  const handleSaveGroup = async () => {
+    if (!editingGroup) return;
+    try {
+      // Combine date with start/end times for proper datetime storage
+      const formData = { ...editForm };
+      if (editForm.date && editForm.startTime) {
+        formData.startTime = `${editForm.date}T${editForm.startTime}`;
+      }
+      if (editForm.date && editForm.endTime) {
+        formData.endTime = `${editForm.date}T${editForm.endTime}`;
+      }
+      await api.updateGroup(editingGroup.id, formData);
+      setNotification({ message: 'Group updated successfully!', type: 'success' });
+      setTimeout(() => setNotification(null), 5000);
+      setEditingGroup(null);
+      // Refresh created groups
+      const created = await api.getCreatedGroups();
+      setCreatedGroups(Array.isArray(created) ? created : []);
+    } catch (err) {
+      setNotification({ message: 'Failed to update group', type: 'error' });
+      setTimeout(() => setNotification(null), 5000);
+    }
+  };
+
+  // Handle kicking a member from the group
+  const handleKickMember = async (memberId: number, memberName: string) => {
+    if (!editingGroup) return;
+    if (!confirm(`Are you sure you want to remove ${memberName} from the group?`)) return;
+    
+    try {
+      await api.kickMember(editingGroup.id, memberId);
+      setGroupMembers(prev => prev.filter(m => m.id !== memberId));
+      setNotification({ message: `${memberName} has been removed from the group`, type: 'success' });
+      setTimeout(() => setNotification(null), 5000);
+    } catch (err) {
+      setNotification({ message: 'Failed to remove member', type: 'error' });
+      setTimeout(() => setNotification(null), 5000);
+    }
+  };
+
+  // Handle dismissing member notification
+  const handleDismissNotification = async (notifId: number) => {
+    await api.markNotificationRead(notifId);
+    setMemberNotifications(prev => prev.filter(n => n.id !== notifId));
+  };
 
   return (
     <div className="dashboard-container">
@@ -276,29 +388,120 @@ export default function Dashboard() {
             <h3>My Study Groups</h3>
           </div>
           <div className="study-group-cards">
-            {myGroups.length === 0 ? (
+            {createdGroups.length === 0 && myGroups.length === 0 ? (
               <div className="study-group-card-empty">No groups joined yet</div>
             ) : (
-              myGroups.map((g) => (
-                <div key={g.id} className="study-group-card-detailed">
-                  <div className="card-header">
-                    <div className="card-left">
-                      <div className="group-icon-small">{g.subject?.charAt(0).toUpperCase() || "G"}</div>
-                      <div className="group-title-section">
-                        <strong className="group-title">{g.subject}</strong>
-                        <p className="member-count">{g._count?.userGroups || 0}/{g.capacity || 0} members</p>
-                      </div>
+              <>
+                {/* CREATED GROUPS - Show first with special styling */}
+                {createdGroups.map((g) => (
+                  <div 
+                    key={g.id} 
+                    className="study-group-card-detailed" 
+                    onClick={() => handleEditGroup(g)}
+                    style={{
+                      border: '2px solid #8B5CF6',
+                      background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.01)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(139, 92, 246, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      display: 'flex',
+                      gap: '6px',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{
+                        background: '#8B5CF6',
+                        color: 'white',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 600
+                      }}>
+                        👑 Owner
+                      </span>
+                      <span style={{
+                        background: '#3B82F6',
+                        color: 'white',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 600
+                      }}>
+                        ✏️ Edit
+                      </span>
                     </div>
-                    <span className="active-badge">Active</span>
+                    <div className="card-header">
+                      <div className="card-left">
+                        <div className="group-icon-small" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' }}>{g.subject?.charAt(0).toUpperCase() || "G"}</div>
+                        <div className="group-title-section">
+                          <strong className="group-title">{g.subject}</strong>
+                          <p className="member-count">{g._count?.userGroups || 0}/{g.capacity || 0} members</p>
+                        </div>
+                      </div>
+                      <span className="active-badge">Active</span>
+                    </div>
+                    <div className="card-body">
+                      <p className="group-desc">{g.smallDesc}</p>
+                      <p className="group-date">📅 {g.date || "N/A"}</p>
+                      <p className="group-time">⏰ {new Date(g.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="group-location">📍 Location: {g.location}</p>
+                    </div>
                   </div>
-                  <div className="card-body">
-                    <p className="group-desc">{g.smallDesc}</p>
-                    <p className="group-date">📅 {g.date || "N/A"}</p>
-                    <p className="group-time">⏰ {new Date(g.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                    <p className="group-location">📍 Location: {g.location}</p>
+                ))}
+
+                {/* JOINED GROUPS - Filter out created ones */}
+                {myGroups
+                  .filter(g => !createdGroups.some(cg => cg.id === g.id))
+                  .map((g) => (
+                  <div key={g.id} className="study-group-card-detailed" style={{
+                    border: '1px solid #E5E7EB',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      top: '10px',
+                      right: '10px',
+                      background: '#10B981',
+                      color: 'white',
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 600
+                    }}>
+                      ✓ Member
+                    </div>
+                    <div className="card-header">
+                      <div className="card-left">
+                        <div className="group-icon-small">{g.subject?.charAt(0).toUpperCase() || "G"}</div>
+                        <div className="group-title-section">
+                          <strong className="group-title">{g.subject}</strong>
+                          <p className="member-count">{g._count?.userGroups || 0}/{g.capacity || 0} members</p>
+                        </div>
+                      </div>
+                      <span className="active-badge">Active</span>
+                    </div>
+                    <div className="card-body">
+                      <p className="group-desc">{g.smallDesc}</p>
+                      <p className="group-date">📅 {g.date || "N/A"}</p>
+                      <p className="group-time">⏰ {new Date(g.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <p className="group-location">📍 Location: {g.location}</p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))}
+              </>
             )}
           </div>
         </div>
@@ -346,6 +549,303 @@ export default function Dashboard() {
 
       </div>
 
+      {/* EDIT GROUP MODAL */}
+      {editingGroup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ margin: 0, color: '#1F2937' }}>Edit Group</h2>
+              <button 
+                onClick={() => setEditingGroup(null)}
+                style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6B7280' }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Subject/Title</label>
+                <input
+                  type="text"
+                  value={editForm.subject}
+                  onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Short Description</label>
+                <input
+                  type="text"
+                  value={editForm.smallDesc}
+                  onChange={(e) => setEditForm({ ...editForm, smallDesc: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Date</label>
+                  <input
+                    type="date"
+                    value={editForm.date}
+                    onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Capacity</label>
+                  <input
+                    type="number"
+                    value={editForm.capacity}
+                    onChange={(e) => setEditForm({ ...editForm, capacity: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Start Time</label>
+                  <input
+                    type="time"
+                    value={editForm.startTime}
+                    onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>End Time</label>
+                  <input
+                    type="time"
+                    value={editForm.endTime}
+                    onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Location</label>
+                <input
+                  type="text"
+                  value={editForm.location}
+                  onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Type of Study</label>
+                  <select
+                    value={editForm.typeOfStudy}
+                    onChange={(e) => setEditForm({ ...editForm, typeOfStudy: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                  >
+                    <option value="">Select type of study</option>
+                    <option value="exam-revision">Exam revision</option>
+                    <option value="assignment">Assignment</option>
+                    <option value="lecture-revision">Lecture revision</option>
+                    <option value="lab-revision">Lab revision</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: 500, color: '#374151' }}>Language</label>
+                  <input
+                    type="text"
+                    value={editForm.language}
+                    onChange={(e) => setEditForm({ ...editForm, language: e.target.value })}
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px' }}
+                  />
+                </div>
+              </div>
+
+              {/* GROUP MEMBERS SECTION */}
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+                <h3 style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '16px' }}>
+                  Group Members ({groupMembers.length})
+                </h3>
+                {groupMembers.length === 0 ? (
+                  <p style={{ color: '#6B7280', fontSize: '14px' }}>No members yet</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                    {groupMembers.map((member) => (
+                      <div key={member.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px',
+                        background: member.role === 'admin' ? '#F5F3FF' : '#F9FAFB',
+                        borderRadius: '8px',
+                        border: member.role === 'admin' ? '1px solid #8B5CF6' : '1px solid #E5E7EB'
+                      }}>
+                        <div style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '50%',
+                          background: member.role === 'admin' ? 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' : '#3B82F6',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: 600,
+                          fontSize: '14px'
+                        }}>
+                          {member.name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ margin: 0, fontWeight: 500, color: '#1F2937' }}>
+                            {member.name || 'Unknown'}
+                            {member.role === 'admin' && (
+                              <span style={{
+                                marginLeft: '8px',
+                                background: '#8B5CF6',
+                                color: 'white',
+                                padding: '2px 8px',
+                                borderRadius: '10px',
+                                fontSize: '10px',
+                                fontWeight: 600
+                              }}>
+                                Owner
+                              </span>
+                            )}
+                          </p>
+                          <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#6B7280' }}>
+                            {member.course || 'No course'} • {member.year || 'No year'}
+                          </p>
+                        </div>
+                        {/* Kick button - only show for non-admin members */}
+                        {member.role !== 'admin' && (
+                          <button
+                            onClick={() => handleKickMember(member.id, member.name)}
+                            style={{
+                              background: '#FEE2E2',
+                              color: '#DC2626',
+                              border: 'none',
+                              borderRadius: '6px',
+                              padding: '6px 12px',
+                              fontSize: '12px',
+                              fontWeight: 500,
+                              cursor: 'pointer',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#FECACA'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = '#FEE2E2'}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                <button
+                  onClick={() => setEditingGroup(null)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #D1D5DB',
+                    background: 'white',
+                    color: '#374151',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveGroup}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                    color: 'white',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MEMBER NOTIFICATIONS - Group Update Alerts */}
+      {memberNotifications.length > 0 && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1500,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}>
+          {memberNotifications.map((notif) => (
+            <div key={notif.id} style={{
+              background: '#EFF6FF',
+              border: '1px solid #3B82F6',
+              borderRadius: '12px',
+              padding: '16px',
+              maxWidth: '350px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px'
+            }}>
+              <span style={{ fontSize: '20px' }}>🔔</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, color: '#1E40AF', fontWeight: 500 }}>{notif.message}</p>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#6B7280' }}>
+                  {new Date(notif.createdAt).toLocaleString()}
+                </p>
+              </div>
+              <button
+                onClick={() => handleDismissNotification(notif.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#6B7280',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  padding: 0
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

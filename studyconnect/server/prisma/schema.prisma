@@ -86,3 +86,13 @@ model Event {
   endTime   DateTime?
   createdAt DateTime @default(now())
 }
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  message   String
+  groupId   Int?
+  type      String   @default("info") // info, update, join
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

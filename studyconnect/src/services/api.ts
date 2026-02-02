@@ -95,4 +95,52 @@ export async function upcomingEvents() {
   return res.json();
 }
 
-export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents };
+export async function getGroup(groupId: number) {
+  const res = await fetch(`${BASE}/groups/${groupId}`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function getGroupMembers(groupId: number) {
+  const res = await fetch(`${BASE}/groups/${groupId}/members`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function kickMember(groupId: number, memberId: number) {
+  const res = await fetch(`${BASE}/groups/${groupId}/kick/${memberId}`, {
+    method: 'POST',
+    headers: { ...authHeaders() }
+  });
+  return res.json();
+}
+
+export async function updateGroup(groupId: number, data: any) {
+  const res = await fetch(`${BASE}/groups/update/${groupId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+export async function getNotifications() {
+  const res = await fetch(`${BASE}/groups/notifications/mine`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function markNotificationRead(notificationId: number) {
+  const res = await fetch(`${BASE}/groups/notifications/read/${notificationId}`, {
+    method: 'POST',
+    headers: { ...authHeaders() }
+  });
+  return res.json();
+}
+
+export async function markAllNotificationsRead() {
+  const res = await fetch(`${BASE}/groups/notifications/read-all`, {
+    method: 'POST',
+    headers: { ...authHeaders() }
+  });
+  return res.json();
+}
+
+export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents, getGroup, getGroupMembers, kickMember, updateGroup, getNotifications, markNotificationRead, markAllNotificationsRead };

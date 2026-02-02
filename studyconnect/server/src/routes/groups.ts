@@ -246,4 +246,210 @@ router.get("/suggested", requireAuth, async (req: AuthRequest, res) => {
   res.json(groups.map(g => ({ ...g, tags: g.groupTags.map(gt => gt.tag.name) })));
 });
 
+// Get a single group by ID
+router.get("/:groupId", async (req, res) => {
+  try {
+    const groupId = Number(req.params.groupId);
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      include: { 
+        groupTags: { include: { tag: true } },
+        userGroups: { where: { status: "approved" } }
+      }
+    });
+    if (!group) return res.status(404).json({ error: "Group not found" });
+    res.json({ ...group, tags: group.groupTags.map(gt => gt.tag.name), _count: { userGroups: group.userGroups.length } });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Get members of a group (for group owner)
+router.get("/:groupId/members", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const groupId = Number(req.params.groupId);
+    
+    // Check if user is the creator of this group
+    const group = await prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) return res.status(404).json({ error: "Group not found" });
+    if (group.createdBy !== userId) return res.status(403).json({ error: "Not authorized" });
+    
+    // Get all approved members
+    const members = await prisma.userGroup.findMany({
+      where: { groupId, status: "approved" },
+      include: { 
+        user: { select: { id: true, name: true, email: true, year: true, course: true } }
+      }
+    });
+    
+    res.json(members.map(m => ({
+      ...m.user,
+      role: m.role,
+      joinedAt: m.joinedAt
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Kick a member from group (owner only)
+router.post("/:groupId/kick/:memberId", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const groupId = Number(req.params.groupId);
+    const memberId = Number(req.params.memberId);
+    
+    // Check if user is the creator of this group
+    const group = await prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) return res.status(404).json({ error: "Group not found" });
+    if (group.createdBy !== userId) return res.status(403).json({ error: "Not authorized - only the owner can kick members" });
+    
+    // Can't kick yourself (the owner)
+    if (memberId === userId) return res.status(400).json({ error: "You cannot kick yourself from the group" });
+    
+    // Delete the user from the group
+    await prisma.userGroup.deleteMany({
+      where: { groupId, userId: memberId }
+    });
+    
+    // Create a notification for the kicked member
+    await prisma.notification.create({
+      data: {
+        userId: memberId,
+        message: `You have been removed from the group "${group.subject}".`,
+        groupId: groupId,
+        type: "info"
+      }
+    });
+    
+    res.json({ success: true, message: "Member removed from group" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Update a group (owner only)
+router.put("/update/:groupId", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const groupId = Number(req.params.groupId);
+    
+    // Check if user is the creator of this group
+    const group = await prisma.group.findUnique({ where: { id: groupId } });
+    if (!group) return res.status(404).json({ error: "Group not found" });
+    if (group.createdBy !== userId) return res.status(403).json({ error: "Not authorized - only the owner can edit" });
+    
+    const {
+      subject,
+      smallDesc,
+      description,
+      date,
+      startTime,
+      endTime,
+      capacity,
+      typeOfStudy,
+      scheduleType,
+      language,
+      location
+    } = req.body;
+    
+    // Update the group
+    const updated = await prisma.group.update({
+      where: { id: groupId },
+      data: {
+        subject,
+        smallDesc,
+        description,
+        date,
+        startTime: new Date(startTime),
+        endTime: new Date(endTime),
+        capacity: Number(capacity),
+        typeOfStudy,
+        scheduleType,
+        language,
+        location
+      }
+    });
+    
+    // Get all members of this group (except the owner)
+    const members = await prisma.userGroup.findMany({
+      where: { groupId, status: "approved", userId: { not: userId } }
+    });
+    
+    // Create notifications for all members
+    for (const member of members) {
+      await prisma.notification.create({
+        data: {
+          userId: member.userId,
+          message: `The group "${subject}" has been updated by the owner.`,
+          groupId: groupId,
+          type: "update"
+        }
+      });
+    }
+    
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Get notifications for current user
+router.get("/notifications/mine", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const notifications = await prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 20
+    });
+    res.json(notifications);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Mark notification as read
+router.post("/notifications/read/:notificationId", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const notificationId = Number(req.params.notificationId);
+    
+    const notification = await prisma.notification.findUnique({ where: { id: notificationId } });
+    if (!notification || notification.userId !== userId) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+    
+    const updated = await prisma.notification.update({
+      where: { id: notificationId },
+      data: { read: true }
+    });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Mark all notifications as read
+router.post("/notifications/read-all", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    await prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true }
+    });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
 export default router;
