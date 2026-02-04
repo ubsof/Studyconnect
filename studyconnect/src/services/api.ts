@@ -143,4 +143,58 @@ export async function markAllNotificationsRead() {
   return res.json();
 }
 
-export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents, getGroup, getGroupMembers, kickMember, updateGroup, getNotifications, markNotificationRead, markAllNotificationsRead };
+// Questions API
+export async function getAllQuestions() {
+  const res = await fetch(`${BASE}/questions`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function getQuestion(questionId: number) {
+  const res = await fetch(`${BASE}/questions/${questionId}`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function createQuestion(formData: FormData) {
+  const res = await fetch(`${BASE}/questions`, {
+    method: 'POST',
+    headers: { ...authHeaders() },
+    body: formData
+  });
+  return res.json();
+}
+
+export async function deleteQuestion(questionId: number) {
+  const res = await fetch(`${BASE}/questions/${questionId}`, {
+    method: 'DELETE',
+    headers: { ...authHeaders() }
+  });
+  return res.json();
+}
+
+export async function addAnswer(questionId: number, content: string) {
+  const res = await fetch(`${BASE}/questions/${questionId}/answers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ content })
+  });
+  return res.json();
+}
+
+export async function deleteAnswer(answerId: number) {
+  const res = await fetch(`${BASE}/questions/answers/${answerId}`, {
+    method: 'DELETE',
+    headers: { ...authHeaders() }
+  });
+  return res.json();
+}
+
+export async function searchQuestions(query: string) {
+  const res = await fetch(`${BASE}/questions/search/${encodeURIComponent(query)}`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export function getImageUrl(imageUrl: string) {
+  return `${BASE}${imageUrl}`;
+}
+
+export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents, getGroup, getGroupMembers, kickMember, updateGroup, getNotifications, markNotificationRead, markAllNotificationsRead, getAllQuestions, getQuestion, createQuestion, deleteQuestion, addAnswer, deleteAnswer, searchQuestions, getImageUrl };

@@ -1,9 +1,11 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 import authRoutes from "./routes/auth";
 import groupRoutes from "./routes/groups";
 import eventsRoutes from "./routes/events";
+import questionsRoutes from "./routes/questions";
 
 dotenv.config();
 
@@ -21,9 +23,13 @@ app.use(
 );
 app.use(express.json());
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 app.use("/auth", authRoutes);
 app.use("/groups", groupRoutes);
 app.use("/events", eventsRoutes);
+app.use("/questions", questionsRoutes);
 
 // Friendly root route to confirm server is running
 app.get("/", (req, res) => {

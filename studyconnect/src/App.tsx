@@ -9,6 +9,7 @@ import StudyGroups from "./StudyGroups";
 import ManageGroup from "./ManageGroup";
 import Support from "./Support";
 import ScholarCalendar from "./ScholarCalendar";
+import HelpForum from "./HelpForum";
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/manage-group/:groupId" element={<ManageGroup />} />
       <Route path="/support" element={<Support />} />
       <Route path="/calendar" element={<ScholarCalendar />} />
+      <Route path="/helpforum" element={<HelpForum />} />
     </Routes>
   );
 }
