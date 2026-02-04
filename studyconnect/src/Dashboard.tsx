@@ -248,14 +248,14 @@ export default function Dashboard() {
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 100 }}>
           <button 
             onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
-            aria-label={`Notifications${pendingRequests.length > 0 ? `, ${pendingRequests.length} pending requests` : ''}`}
+            aria-label={`Notifications${(pendingRequests.length + memberNotifications.filter(n => n.type === 'forum_answer').length) > 0 ? `, ${pendingRequests.length + memberNotifications.filter(n => n.type === 'forum_answer').length} notifications` : ''}`}
             aria-expanded={showNotificationDropdown}
             aria-haspopup="true"
             style={{
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              background: pendingRequests.length > 0 ? '#FEF3C7' : '#F3F4F6',
+              background: (pendingRequests.length + memberNotifications.filter(n => n.type === 'forum_answer').length) > 0 ? '#FEF3C7' : '#F3F4F6',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -266,7 +266,7 @@ export default function Dashboard() {
             }}
           >
             <span style={{ fontSize: '20px' }}>🔔</span>
-            {pendingRequests.length > 0 && (
+            {(pendingRequests.length + memberNotifications.filter(n => n.type === 'forum_answer').length) > 0 && (
               <span style={{
                 position: 'absolute',
                 top: '-5px',
@@ -282,7 +282,7 @@ export default function Dashboard() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                {pendingRequests.length}
+                {pendingRequests.length + memberNotifications.filter(n => n.type === 'forum_answer').length}
               </span>
             )}
           </button>
@@ -298,9 +298,78 @@ export default function Dashboard() {
               borderRadius: '12px',
               boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
               padding: '16px',
-              maxHeight: '400px',
+              maxHeight: '450px',
               overflowY: 'auto'
             }}>
+              {/* Forum Answers Section */}
+              {memberNotifications.filter(n => n.type === 'forum_answer').length > 0 && (
+                <>
+                  <h4 style={{ margin: '0 0 12px 0', color: '#1F2937', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    💬 Forum Replies
+                  </h4>
+                  {memberNotifications.filter(n => n.type === 'forum_answer').map((notif) => (
+                    <div key={notif.id} style={{
+                      padding: '12px',
+                      background: '#EFF6FF',
+                      borderRadius: '8px',
+                      marginBottom: '8px',
+                      borderLeft: '3px solid #3B82F6'
+                    }}>
+                      <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#1F2937' }}>
+                        {notif.message}
+                      </p>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <Link
+                          to="/helpforum"
+                          onClick={async () => {
+                            await api.markNotificationRead(notif.id);
+                            setMemberNotifications(prev => prev.filter(n => n.id !== notif.id));
+                            setShowNotificationDropdown(false);
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '6px 12px',
+                            background: '#3B82F6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            textAlign: 'center',
+                            textDecoration: 'none',
+                            fontSize: '13px'
+                          }}
+                        >
+                          View Question
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            await api.markNotificationRead(notif.id);
+                            setMemberNotifications(prev => prev.filter(n => n.id !== notif.id));
+                          }}
+                          style={{
+                            padding: '6px 12px',
+                            background: '#E5E7EB',
+                            color: '#374151',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontWeight: 500,
+                            fontSize: '13px'
+                          }}
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingRequests.length > 0 && (
+                    <hr style={{ border: 'none', borderTop: '1px solid #E5E7EB', margin: '16px 0' }} />
+                  )}
+                </>
+              )}
+
+              {/* Join Requests Section */}
               <h4 style={{ margin: '0 0 12px 0', color: '#1F2937' }}>Join Requests</h4>
               {pendingRequests.length === 0 ? (
                 <p style={{ color: '#6B7280', fontSize: '14px' }}>No pending requests</p>
@@ -830,7 +899,7 @@ export default function Dashboard() {
               alignItems: 'flex-start',
               gap: '12px'
             }}>
-              <span style={{ fontSize: '20px' }}>🔔</span>
+              <span style={{ fontSize: '20px' }}></span>
               <div style={{ flex: 1 }}>
                 <p style={{ margin: 0, color: '#1E40AF', fontWeight: 500 }}>{notif.message}</p>
                 <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#6B7280' }}>

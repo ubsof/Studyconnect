@@ -161,7 +161,8 @@ router.post('/:id/answers', requireAuth, async (req: Request, res: Response) => 
     }
 
     const question = await prisma.question.findUnique({
-      where: { id: questionId }
+      where: { id: questionId },
+      include: { user: { select: { id: true, name: true } } }
     });
 
     if (!question) {
@@ -178,6 +179,19 @@ router.post('/:id/answers', requireAuth, async (req: Request, res: Response) => 
         user: { select: { id: true, name: true, email: true } }
       }
     });
+
+    // Create notification for the question owner (only if answerer is not the owner)
+    if (question.userId !== userId) {
+      const answererName = answer.user?.name || 'Someone';
+      await prisma.notification.create({
+        data: {
+          userId: question.userId,
+          message: `${answererName} answered your question: "${question.title}"`,
+          questionId: questionId,
+          type: 'forum_answer'
+        }
+      });
+    }
 
     res.status(201).json(answer);
   } catch (error) {
