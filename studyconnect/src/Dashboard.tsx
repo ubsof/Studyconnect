@@ -246,8 +246,11 @@ export default function Dashboard() {
 
         {/* NOTIFICATION BELL */}
         <div style={{ position: 'absolute', top: '20px', right: '20px', zIndex: 100 }}>
-          <div 
+          <button 
             onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
+            aria-label={`Notifications${pendingRequests.length > 0 ? `, ${pendingRequests.length} pending requests` : ''}`}
+            aria-expanded={showNotificationDropdown}
+            aria-haspopup="true"
             style={{
               width: '40px',
               height: '40px',
@@ -258,7 +261,8 @@ export default function Dashboard() {
               justifyContent: 'center',
               cursor: 'pointer',
               position: 'relative',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              border: 'none'
             }}
           >
             <span style={{ fontSize: '20px' }}>🔔</span>
@@ -281,7 +285,7 @@ export default function Dashboard() {
                 {pendingRequests.length}
               </span>
             )}
-          </div>
+          </button>
 
           {/* Dropdown */}
           {showNotificationDropdown && (
@@ -835,6 +839,7 @@ export default function Dashboard() {
               </div>
               <button
                 onClick={() => handleDismissNotification(notif.id)}
+                aria-label="Dismiss notification"
                 style={{
                   background: 'none',
                   border: 'none',
