@@ -149,9 +149,9 @@ export default function StudyGroups() {
                   <p className="group-detail">
                     <strong>Time:</strong> {new Date(group.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(group.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
-                  <p className="group-detail"><strong>Language:</strong> {group.language || "Any"}</p>
-                  <p className="group-detail"><strong>Type of Study:</strong> {group.typeOfStudy}</p>
-                  <p className="group-detail"><strong>Schedule Type:</strong> {group.scheduleType}</p>
+                  {group.language && <p className="group-detail"><strong>Language:</strong> {group.language}</p>}
+                  {group.typeOfStudy && <p className="group-detail"><strong>Type of Study:</strong> {group.typeOfStudy}</p>}
+                  {group.scheduleType && <p className="group-detail"><strong>Schedule Type:</strong> {group.scheduleType}</p>}
                   <button onClick={() => handleJoin(group.id)} className="join-button">
                     Request to Join
                   </button>

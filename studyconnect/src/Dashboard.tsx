@@ -522,6 +522,9 @@ export default function Dashboard() {
                   </div>
                   <div className="event-info">
                     <strong>{g.subject}</strong>
+                    <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                      📅 {g.date || 'No date'} • 🕐 {g.startTime ? new Date(g.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBD'}
+                    </div>
                   </div>
                 </div>
               ))}

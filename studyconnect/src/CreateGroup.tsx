@@ -19,6 +19,7 @@ export default function CreateGroup() {
   const [location, setLocation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,14 +45,6 @@ export default function CreateGroup() {
     }
     if (!capacity || capacity <= 0) {
       setError("How many members is required");
-      return;
-    }
-    if (!scheduleType.trim()) {
-      setError("Schedule Type is required");
-      return;
-    }
-    if (!language.trim()) {
-      setError("Language is required");
       return;
     }
     if (!location.trim()) {
@@ -119,7 +112,7 @@ export default function CreateGroup() {
 
             {/* SUBJECT */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">📚</div>
               <label>Subject <span className="required">*</span></label>
               <input
                 type="text"
@@ -131,7 +124,7 @@ export default function CreateGroup() {
 
             {/* DESCRIPTION */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">📝</div>
               <label>Description <span className="required">*</span></label>
               <input
                 type="text"
@@ -143,28 +136,28 @@ export default function CreateGroup() {
 
             {/* DATE */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">📅</div>
               <label>Date <span className="required">*</span></label>
               <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             </div>
 
             {/* START TIME */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">🕐</div>
               <label>Start Time <span className="required">*</span></label>
               <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
             </div>
 
             {/* END TIME */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">🕕</div>
               <label>End Time</label>
               <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
             </div>
 
             {/* MEMBER COUNT */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">👥</div>
               <label>How many members <span className="required">*</span></label>
               <input
                 type="number"
@@ -174,46 +167,9 @@ export default function CreateGroup() {
               />
             </div>
 
-            {/* TYPE OF STUDY */}
-            <div className="form-row">
-              <div className="icon-box">🧪</div>
-              <label>Type of study</label>
-              <select value={typeOfStudy} onChange={(e) => setTypeOfStudy(e.target.value)}>
-                <option value="">Select type of study</option>
-                <option value="Exam revision">Exam revision</option>
-                <option value="Assignment">Assignment</option>
-                <option value="Lecture revision">Lecture revision</option>
-                <option value="Lab revision">Lab revision</option>
-              </select>
-            </div>
-
-            {/* SCHEDULE TYPE */}
-            <div className="form-row">
-              <div className="icon-box">🧪</div>
-              <label>Schedule Type <span className="required">*</span></label>
-              <select value={scheduleType} onChange={(e) => setScheduleType(e.target.value)}>
-                <option value="">Select schedule type</option>
-                <option value="one time">One time</option>
-                <option value="weekly">Weekly</option>
-                <option value="bi weekly">Bi weekly</option>
-              </select>
-            </div>
-
-            {/* LANGUAGE */}
-            <div className="form-row">
-              <div className="icon-box">🧪</div>
-              <label>Language <span className="required">*</span></label>
-              <input
-                type="text"
-                placeholder="e.g., English"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              />
-            </div>
-
             {/* LOCATION */}
             <div className="form-row">
-              <div className="icon-box">🧪</div>
+              <div className="icon-box">📍</div>
               <label>Location <span className="required">*</span></label>
               <input
                 type="text"
@@ -222,6 +178,81 @@ export default function CreateGroup() {
                 onChange={(e) => setLocation(e.target.value)}
               />
             </div>
+
+            {/* ADVANCED SETTINGS TOGGLE */}
+            <div 
+              className="advanced-toggle"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 16px',
+                marginTop: '8px',
+                cursor: 'pointer',
+                color: '#6366F1',
+                fontWeight: 500,
+                fontSize: '14px',
+                background: '#F5F3FF',
+                borderRadius: '8px',
+                border: '1px dashed #C7D2FE',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span style={{ transform: showAdvanced ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▶</span>
+              Advanced Settings
+              <span style={{ marginLeft: 'auto', fontSize: '12px', color: '#9CA3AF' }}>
+                {showAdvanced ? 'Click to hide' : 'Type of study, Schedule, Language'}
+              </span>
+            </div>
+
+            {/* ADVANCED SETTINGS SECTION */}
+            {showAdvanced && (
+              <div className="advanced-section" style={{ 
+                marginTop: '12px', 
+                padding: '16px', 
+                background: '#FAFAFA', 
+                borderRadius: '12px',
+                border: '1px solid #E5E7EB'
+              }}>
+                {/* TYPE OF STUDY */}
+                <div className="form-row">
+                  <div className="icon-box">🎯</div>
+                  <label>Type of study</label>
+                  <select value={typeOfStudy} onChange={(e) => setTypeOfStudy(e.target.value)}>
+                    <option value="">Select type of study</option>
+                    <option value="Exam revision">Exam revision</option>
+                    <option value="Assignment">Assignment</option>
+                    <option value="Lecture revision">Lecture revision</option>
+                    <option value="Lab revision">Lab revision</option>
+                  </select>
+                </div>
+
+                {/* SCHEDULE TYPE */}
+                <div className="form-row">
+                  <div className="icon-box">🔄</div>
+                  <label>Schedule Type</label>
+                  <select value={scheduleType} onChange={(e) => setScheduleType(e.target.value)}>
+                    <option value="">Select schedule type</option>
+                    <option value="one time">One time</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="bi weekly">Bi weekly</option>
+                  </select>
+                </div>
+
+                {/* LANGUAGE */}
+                <div className="form-row">
+                  <div className="icon-box">🌐</div>
+                  <label>Language</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., English"
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             <div style={{ marginTop: 12 }}>
               <button type="submit">Create Group</button>
