@@ -201,12 +201,12 @@ export default function HelpForum() {
         <h2 className="brand">StudyConnect</h2>
         <nav className="nav">
           <Link to="/dashboard" className="nav-item">Homepage</Link>
-          <Link to="/studygroups" className="nav-item">Study Groups</Link>
-          <Link to="/creategroup" className="nav-item">Create Group</Link>
+          <Link to="/studygroups" className="nav-item">Find Groups</Link>
+          <Link to="/creategroup" className="nav-item">Create Study Group</Link>
           <Link to="/helpforum" className="nav-item active">Help Forum</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item">Wellbeing Support</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
         <SidebarUserCard />
       </aside>

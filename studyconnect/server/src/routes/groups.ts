@@ -265,16 +265,17 @@ router.get("/:groupId", async (req, res) => {
   }
 });
 
-// Get members of a group (for group owner)
+// Get members of a group (for any approved member)
 router.get("/:groupId/members", requireAuth, async (req: AuthRequest, res) => {
   try {
     const userId = req.userId!;
     const groupId = Number(req.params.groupId);
     
-    // Check if user is the creator of this group
-    const group = await prisma.group.findUnique({ where: { id: groupId } });
-    if (!group) return res.status(404).json({ error: "Group not found" });
-    if (group.createdBy !== userId) return res.status(403).json({ error: "Not authorized" });
+    // Check if user is an approved member of this group
+    const membership = await prisma.userGroup.findFirst({
+      where: { userId, groupId, status: "approved" }
+    });
+    if (!membership) return res.status(403).json({ error: "Not authorized - you must be a member of this group" });
     
     // Get all approved members
     const members = await prisma.userGroup.findMany({
@@ -446,6 +447,78 @@ router.post("/notifications/read-all", requireAuth, async (req: AuthRequest, res
       data: { read: true }
     });
     res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Get chat messages for a group (must be an approved member)
+router.get("/:groupId/messages", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const groupId = Number(req.params.groupId);
+    
+    // Check membership
+    const membership = await prisma.userGroup.findFirst({
+      where: { userId, groupId, status: "approved" }
+    });
+    if (!membership) return res.status(403).json({ error: "Not authorized" });
+    
+    const messages = await prisma.message.findMany({
+      where: { groupId },
+      include: { 
+        user: { select: { id: true, name: true } }
+      },
+      orderBy: { createdAt: "asc" }
+    });
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Send a chat message to a group (must be an approved member)
+router.post("/:groupId/messages", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const userId = req.userId!;
+    const groupId = Number(req.params.groupId);
+    const { content } = req.body;
+    
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: "Message content is required" });
+    }
+    
+    // Check membership
+    const membership = await prisma.userGroup.findFirst({
+      where: { userId, groupId, status: "approved" }
+    });
+    if (!membership) return res.status(403).json({ error: "Not authorized" });
+    
+    const message = await prisma.message.create({
+      data: { content: content.trim(), groupId, userId },
+      include: { 
+        user: { select: { id: true, name: true } }
+      }
+    });
+    res.json(message);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
+});
+
+// Get user profile by ID (for viewing other members' profiles)
+router.get("/user-profile/:userId", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const targetUserId = Number(req.params.userId);
+    const user = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { id: true, name: true, email: true, year: true, course: true, institution: true }
+    });
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json(user);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "server error" });

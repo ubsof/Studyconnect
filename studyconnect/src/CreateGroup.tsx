@@ -89,12 +89,12 @@ export default function CreateGroup() {
 
         <nav className="nav">
           <Link to="/dashboard" className="nav-item">Homepage</Link>
-          <Link to="/studygroups" className="nav-item">Study Groups</Link>
-          <Link to="/creategroup" className="nav-item active">Create Group</Link>
+          <Link to="/studygroups" className="nav-item">Find Groups</Link>
+          <Link to="/creategroup" className="nav-item active">Create Study Group</Link>
           <Link to="/helpforum" className="nav-item">Help Forum</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item">Wellbeing Support</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
 
         <SidebarUserCard />

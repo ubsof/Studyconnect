@@ -197,4 +197,32 @@ export function getImageUrl(imageUrl: string) {
   return `${BASE}${imageUrl}`;
 }
 
-export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents, getGroup, getGroupMembers, kickMember, updateGroup, getNotifications, markNotificationRead, markAllNotificationsRead, getAllQuestions, getQuestion, createQuestion, deleteQuestion, addAnswer, deleteAnswer, searchQuestions, getImageUrl };
+export async function getGroupMessages(groupId: number) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function sendGroupMessage(groupId: number, content: string) {
+  const res = await fetch(`${BASE}/groups/${groupId}/messages`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify({ content })
+  });
+  return res.json();
+}
+
+export async function getUserProfile(userId: number) {
+  const res = await fetch(`${BASE}/groups/user-profile/${userId}`, { headers: { ...authHeaders() } });
+  return res.json();
+}
+
+export async function updateProfile(data: { institution?: string }) {
+  const res = await fetch(`${BASE}/auth/update-profile`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+export default { login, register, me, createGroup, getAllGroups, searchGroups, joinGroup, getMyGroups, getCreatedGroups, getGroupRequests, getAllPendingRequests, updateRequest, suggested, upcomingEvents, getGroup, getGroupMembers, kickMember, updateGroup, getNotifications, markNotificationRead, markAllNotificationsRead, getAllQuestions, getQuestion, createQuestion, deleteQuestion, addAnswer, deleteAnswer, searchQuestions, getImageUrl, getGroupMessages, sendGroupMessage, getUserProfile, updateProfile };

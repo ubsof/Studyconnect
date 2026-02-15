@@ -99,12 +99,12 @@ export default function StudyGroups() {
 
         <nav className="nav">
           <Link to="/dashboard" className="nav-item">Homepage</Link>
-          <Link to="/studygroups" className="nav-item active">Study Groups</Link>
-          <Link to="/creategroup" className="nav-item">Create Group</Link>
+          <Link to="/studygroups" className="nav-item active">Find Groups</Link>
+          <Link to="/creategroup" className="nav-item">Create Study Group</Link>
           <Link to="/helpforum" className="nav-item">Help Forum</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item">Wellbeing Support</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
 
         <SidebarUserCard />
@@ -113,7 +113,7 @@ export default function StudyGroups() {
       {/* MAIN CONTENT */}
       <main className="studygroups-content">
         <div className="header">
-          <h1>Study Groups</h1>
+          <h1>Find Groups</h1>
           <p>Find and join study groups that match your interests</p>
         </div>
 

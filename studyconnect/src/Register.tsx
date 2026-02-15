@@ -9,15 +9,136 @@ export default function Register() {
   const [year, setYear] = useState("");
   const [dob, setDob] = useState("");
   const [course, setCourse] = useState("");
+  const [institution, setInstitution] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const ukUniversities = [
+    "University of Aberdeen",
+    "Abertay University",
+    "Aberystwyth University",
+    "Anglia Ruskin University",
+    "University of the Arts London",
+    "Aston University",
+    "Bangor University",
+    "University of Bath",
+    "Bath Spa University",
+    "University of Bedfordshire",
+    "University of Birmingham",
+    "Birmingham City University",
+    "University of Bolton",
+    "Bournemouth University",
+    "University of Bradford",
+    "University of Brighton",
+    "University of Bristol",
+    "Brunel University London",
+    "University of Buckingham",
+    "Buckinghamshire New University",
+    "University of Cambridge",
+    "Canterbury Christ Church University",
+    "Cardiff Metropolitan University",
+    "Cardiff University",
+    "University of Central Lancashire",
+    "University of Chester",
+    "University of Chichester",
+    "City, University of London",
+    "Coventry University",
+    "Cranfield University",
+    "University of Cumbria",
+    "De Montfort University",
+    "University of Derby",
+    "University of Dundee",
+    "Durham University",
+    "University of East Anglia",
+    "University of East London",
+    "Edge Hill University",
+    "University of Edinburgh",
+    "Edinburgh Napier University",
+    "University of Essex",
+    "University of Exeter",
+    "Falmouth University",
+    "University of Glasgow",
+    "Glasgow Caledonian University",
+    "University of Gloucestershire",
+    "Goldsmiths, University of London",
+    "University of Greenwich",
+    "Heriot-Watt University",
+    "University of Hertfordshire",
+    "University of the Highlands and Islands",
+    "University of Huddersfield",
+    "University of Hull",
+    "Imperial College London",
+    "Keele University",
+    "University of Kent",
+    "King's College London",
+    "Kingston University",
+    "Lancaster University",
+    "University of Leeds",
+    "Leeds Beckett University",
+    "University of Leicester",
+    "University of Lincoln",
+    "University of Liverpool",
+    "Liverpool Hope University",
+    "Liverpool John Moores University",
+    "University of London",
+    "London Metropolitan University",
+    "London South Bank University",
+    "Loughborough University",
+    "University of Manchester",
+    "Manchester Metropolitan University",
+    "Middlesex University",
+    "Newcastle University",
+    "Northumbria University",
+    "University of Nottingham",
+    "Nottingham Trent University",
+    "Open University",
+    "University of Oxford",
+    "Oxford Brookes University",
+    "University of Plymouth",
+    "University of Portsmouth",
+    "Queen Margaret University",
+    "Queen Mary University of London",
+    "Queen's University Belfast",
+    "University of Reading",
+    "Robert Gordon University",
+    "University of Roehampton",
+    "Royal Holloway, University of London",
+    "University of Salford",
+    "University of Sheffield",
+    "Sheffield Hallam University",
+    "SOAS University of London",
+    "University of South Wales",
+    "University of Southampton",
+    "University of St Andrews",
+    "Staffordshire University",
+    "University of Stirling",
+    "University of Strathclyde",
+    "University of Suffolk",
+    "University of Sunderland",
+    "University of Surrey",
+    "University of Sussex",
+    "Swansea University",
+    "Teesside University",
+    "Ulster University",
+    "University College London",
+    "University of Warwick",
+    "University of West London",
+    "University of the West of England",
+    "University of the West of Scotland",
+    "University of Westminster",
+    "University of Winchester",
+    "University of Wolverhampton",
+    "University of Worcester",
+    "University of York",
+    "York St John University"
+  ];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     try {
-      const res = await api.register({ email, password, name, year, course });
+      const res = await api.register({ email, password, name, year, course, institution });
       if (res.token) {
         localStorage.setItem("token", res.token);
         navigate("/profile");
@@ -75,7 +196,7 @@ export default function Register() {
               onChange={(e) => setYear(e.target.value)}
             />
 
-            <label>When you born</label>
+            <label>Date of Birth</label>
             <input
               type="date"
               value={dob}
@@ -89,6 +210,18 @@ export default function Register() {
               value={course}
               onChange={(e) => setCourse(e.target.value)}
             />
+
+            <label>Institution</label>
+            <select
+              value={institution}
+              onChange={(e) => setInstitution(e.target.value)}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '14px', background: 'white', color: institution ? '#1F2937' : '#9CA3AF' }}
+            >
+              <option value="">Select your university</option>
+              {ukUniversities.map((uni) => (
+                <option key={uni} value={uni}>{uni}</option>
+              ))}
+            </select>
 
             <button type="submit">Register</button>
           </form>

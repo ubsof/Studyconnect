@@ -36,6 +36,20 @@ export default function Dashboard() {
   // Group members for edit modal
   const [groupMembers, setGroupMembers] = useState<any[]>([]);
 
+  // View-only modal state (for joined groups)
+  const [viewingGroup, setViewingGroup] = useState<any>(null);
+  const [viewGroupMembers, setViewGroupMembers] = useState<any[]>([]);
+
+  // Profile modal state
+  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Chat state
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
   useEffect(() => {
     // Check for notification from URL params
     const status = searchParams.get('status');
@@ -62,6 +76,14 @@ export default function Dashboard() {
       } catch (err) {
         setEvents([]);
       }
+
+      // Get current user ID
+      try {
+        const userRes = await api.me();
+        if (userRes && userRes.id) {
+          setCurrentUserId(userRes.id);
+        }
+      } catch (err) {}
 
       try {
         const sg = await api.suggested();
@@ -153,6 +175,65 @@ export default function Dashboard() {
     } catch (err) {
       setGroupMembers([]);
     }
+
+    // Load chat messages
+    loadChatMessages(group.id);
+  };
+
+  // Handle opening view-only modal for joined groups
+  const handleViewGroup = async (group: any) => {
+    setViewingGroup(group);
+    try {
+      const members = await api.getGroupMembers(group.id);
+      setViewGroupMembers(Array.isArray(members) ? members : []);
+    } catch (err) {
+      setViewGroupMembers([]);
+    }
+    // Load chat messages
+    loadChatMessages(group.id);
+  };
+
+  // Load chat messages for a group
+  const loadChatMessages = async (groupId: number) => {
+    setChatLoading(true);
+    try {
+      const msgs = await api.getGroupMessages(groupId);
+      setChatMessages(Array.isArray(msgs) ? msgs : []);
+    } catch (err) {
+      setChatMessages([]);
+    }
+    setChatLoading(false);
+  };
+
+  // Send a chat message
+  const handleSendMessage = async (groupId: number) => {
+    if (!chatInput.trim()) return;
+    try {
+      const msg = await api.sendGroupMessage(groupId, chatInput.trim());
+      if (msg && msg.id) {
+        setChatMessages(prev => [...prev, msg]);
+      }
+      setChatInput('');
+    } catch (err) {
+      console.error('Failed to send message');
+    }
+  };
+
+  // Handle viewing a member's profile
+  const handleViewMemberProfile = async (userId: number) => {
+    try {
+      const profile = await api.getUserProfile(userId);
+      // Also try to get extra profile info from localStorage
+      const savedProfile = localStorage.getItem(`profile_${userId}`);
+      let extraData = { aboutMe: "", hobby: "", language: "", nationality: "", funFact: "" };
+      if (savedProfile) {
+        try { extraData = JSON.parse(savedProfile); } catch {}
+      }
+      setSelectedProfile({ ...profile, ...extraData });
+      setShowProfileModal(true);
+    } catch (err) {
+      console.error('Failed to load profile');
+    }
   };
 
   // Handle saving group changes
@@ -231,12 +312,12 @@ export default function Dashboard() {
 
         <nav className="nav">
           <Link to="/dashboard" className="nav-item active">Homepage</Link>
-          <Link to="/studygroups" className="nav-item">Study Groups</Link>
-          <Link to="/creategroup" className="nav-item">Create Group</Link>
+          <Link to="/studygroups" className="nav-item">Find Groups</Link>
+          <Link to="/creategroup" className="nav-item">Create Study Group</Link>
           <Link to="/helpforum" className="nav-item">Help Forum</Link>
           <Link to="/profile" className="nav-item">Profile</Link>
           <Link to="/calendar" className="nav-item">Scholar Calendar</Link>
-          <Link to="/support" className="nav-item">Wellbeing Support</Link>
+          <Link to="/support" className="nav-item">Support</Link>
         </nav>
         <SidebarUserCard />
       </aside>
@@ -540,10 +621,23 @@ export default function Dashboard() {
                 {myGroups
                   .filter(g => !createdGroups.some(cg => cg.id === g.id))
                   .map((g) => (
-                  <div key={g.id} className="study-group-card-detailed" style={{
-                    border: '1px solid #E5E7EB',
-                    position: 'relative'
-                  }}>
+                  <div key={g.id} className="study-group-card-detailed" 
+                    onClick={() => handleViewGroup(g)}
+                    style={{
+                      border: '1px solid #E5E7EB',
+                      position: 'relative',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.01)';
+                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{
                       position: 'absolute',
                       top: '10px',
@@ -652,7 +746,7 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 style={{ margin: 0, color: '#1F2937' }}>Edit Group</h2>
               <button 
-                onClick={() => setEditingGroup(null)}
+                onClick={() => { setEditingGroup(null); setChatMessages([]); setChatInput(''); }}
                 style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6B7280' }}
               >
                 ×
@@ -775,8 +869,11 @@ export default function Dashboard() {
                         padding: '10px',
                         background: member.role === 'admin' ? '#F5F3FF' : '#F9FAFB',
                         borderRadius: '8px',
-                        border: member.role === 'admin' ? '1px solid #8B5CF6' : '1px solid #E5E7EB'
-                      }}>
+                        border: member.role === 'admin' ? '1px solid #8B5CF6' : '1px solid #E5E7EB',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => handleViewMemberProfile(member.id)}
+                      >
                         <div style={{
                           width: '36px',
                           height: '36px',
@@ -815,7 +912,7 @@ export default function Dashboard() {
                         {/* Kick button - only show for non-admin members */}
                         {member.role !== 'admin' && (
                           <button
-                            onClick={() => handleKickMember(member.id, member.name)}
+                            onClick={(e) => { e.stopPropagation(); handleKickMember(member.id, member.name); }}
                             style={{
                               background: '#FEE2E2',
                               color: '#DC2626',
@@ -839,9 +936,103 @@ export default function Dashboard() {
                 )}
               </div>
 
+              {/* GROUP CHAT SECTION */}
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+                <h3 style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '16px' }}>
+                  💬 Group Chat
+                </h3>
+                <div style={{
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '12px',
+                  overflow: 'hidden'
+                }}>
+                  {/* Messages area */}
+                  <div style={{
+                    height: '250px',
+                    overflowY: 'auto',
+                    padding: '12px',
+                    background: '#FAFAFA',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}>
+                    {chatLoading ? (
+                      <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>Loading messages...</p>
+                    ) : chatMessages.length === 0 ? (
+                      <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '14px', marginTop: '40px' }}>No messages yet. Start the conversation!</p>
+                    ) : (
+                      chatMessages.map((msg) => (
+                        <div key={msg.id} style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: msg.userId === currentUserId ? 'flex-end' : 'flex-start'
+                        }}>
+                          <span style={{ fontSize: '11px', color: '#6B7280', marginBottom: '2px', fontWeight: 500 }}>
+                            {msg.user?.name || 'Unknown'}
+                          </span>
+                          <div style={{
+                            background: msg.userId === currentUserId ? 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' : '#E5E7EB',
+                            color: msg.userId === currentUserId ? 'white' : '#1F2937',
+                            padding: '8px 14px',
+                            borderRadius: '16px',
+                            maxWidth: '75%',
+                            fontSize: '14px',
+                            wordBreak: 'break-word'
+                          }}>
+                            {msg.content}
+                          </div>
+                          <span style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '2px' }}>
+                            {new Date(msg.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {/* Message input */}
+                  <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                    padding: '10px 12px',
+                    borderTop: '1px solid #E5E7EB',
+                    background: 'white'
+                  }}>
+                    <input
+                      type="text"
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(editingGroup.id); }}
+                      placeholder="Type a message..."
+                      style={{
+                        flex: 1,
+                        padding: '10px 14px',
+                        borderRadius: '20px',
+                        border: '1px solid #D1D5DB',
+                        fontSize: '14px',
+                        outline: 'none'
+                      }}
+                    />
+                    <button
+                      onClick={() => handleSendMessage(editingGroup.id)}
+                      style={{
+                        padding: '10px 20px',
+                        borderRadius: '20px',
+                        border: 'none',
+                        background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                        color: 'white',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                 <button
-                  onClick={() => setEditingGroup(null)}
+                  onClick={() => { setEditingGroup(null); setChatMessages([]); setChatInput(''); }}
                   style={{
                     flex: 1,
                     padding: '12px',
@@ -871,6 +1062,376 @@ export default function Dashboard() {
                   Save Changes
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW GROUP MODAL (for joined groups - read-only) */}
+      {viewingGroup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ margin: 0, color: '#1F2937' }}>Group Details</h2>
+              <button 
+                onClick={() => { setViewingGroup(null); setChatMessages([]); setChatInput(''); }}
+                style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6B7280' }}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Group Info - Read Only */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
+              <div style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '22px'
+              }}>
+                {viewingGroup.subject?.charAt(0).toUpperCase() || 'G'}
+              </div>
+              <div>
+                <h3 style={{ margin: 0, color: '#1F2937', fontSize: '20px' }}>{viewingGroup.subject}</h3>
+                <p style={{ margin: '4px 0 0', color: '#6B7280', fontSize: '14px' }}>
+                  {viewingGroup._count?.userGroups || 0}/{viewingGroup.capacity || 0} members
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+              <p style={{ margin: 0, color: '#4B5563', fontSize: '14px' }}>{viewingGroup.smallDesc}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ background: '#F9FAFB', padding: '10px 14px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block' }}>Date</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>📅 {viewingGroup.date || 'N/A'}</span>
+                </div>
+                <div style={{ background: '#F9FAFB', padding: '10px 14px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block' }}>Time</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>⏰ {viewingGroup.startTime ? new Date(viewingGroup.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'TBD'}</span>
+                </div>
+                <div style={{ background: '#F9FAFB', padding: '10px 14px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block' }}>Location</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>📍 {viewingGroup.location || 'N/A'}</span>
+                </div>
+                <div style={{ background: '#F9FAFB', padding: '10px 14px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block' }}>Language</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>🌐 {viewingGroup.language || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* GROUP MEMBERS - Clickable for profile */}
+            <div style={{ paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+              <h3 style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '16px' }}>
+                Group Members ({viewGroupMembers.length})
+              </h3>
+              {viewGroupMembers.length === 0 ? (
+                <p style={{ color: '#6B7280', fontSize: '14px' }}>No members</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                  {viewGroupMembers.map((member) => (
+                    <div key={member.id} 
+                      onClick={() => handleViewMemberProfile(member.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '10px',
+                        background: member.role === 'admin' ? '#F5F3FF' : '#F9FAFB',
+                        borderRadius: '8px',
+                        border: member.role === 'admin' ? '1px solid #8B5CF6' : '1px solid #E5E7EB',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = member.role === 'admin' ? '#EDE9FE' : '#F3F4F6'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = member.role === 'admin' ? '#F5F3FF' : '#F9FAFB'}
+                    >
+                      <div style={{
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '50%',
+                        background: member.role === 'admin' ? 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)' : '#3B82F6',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 600,
+                        fontSize: '14px'
+                      }}>
+                        {member.name?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: 0, fontWeight: 500, color: '#1F2937' }}>
+                          {member.name || 'Unknown'}
+                          {member.role === 'admin' && (
+                            <span style={{
+                              marginLeft: '8px',
+                              background: '#8B5CF6',
+                              color: 'white',
+                              padding: '2px 8px',
+                              borderRadius: '10px',
+                              fontSize: '10px',
+                              fontWeight: 600
+                            }}>
+                              Owner
+                            </span>
+                          )}
+                        </p>
+                        <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#6B7280' }}>
+                          {member.course || 'No course'} • {member.year || 'No year'}
+                        </p>
+                      </div>
+                      <span style={{ fontSize: '12px', color: '#9CA3AF' }}>View Profile →</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* GROUP CHAT SECTION */}
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+              <h3 style={{ margin: '0 0 12px 0', color: '#374151', fontSize: '16px' }}>
+                💬 Group Chat
+              </h3>
+              <div style={{
+                border: '1px solid #E5E7EB',
+                borderRadius: '12px',
+                overflow: 'hidden'
+              }}>
+                {/* Messages area */}
+                <div style={{
+                  height: '250px',
+                  overflowY: 'auto',
+                  padding: '12px',
+                  background: '#FAFAFA',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  {chatLoading ? (
+                    <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>Loading messages...</p>
+                  ) : chatMessages.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '14px', marginTop: '40px' }}>No messages yet. Start the conversation!</p>
+                  ) : (
+                    chatMessages.map((msg) => (
+                      <div key={msg.id} style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: msg.userId === currentUserId ? 'flex-end' : 'flex-start'
+                      }}>
+                        <span style={{ fontSize: '11px', color: '#6B7280', marginBottom: '2px', fontWeight: 500 }}>
+                          {msg.user?.name || 'Unknown'}
+                        </span>
+                        <div style={{
+                          background: msg.userId === currentUserId ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : '#E5E7EB',
+                          color: msg.userId === currentUserId ? 'white' : '#1F2937',
+                          padding: '8px 14px',
+                          borderRadius: '16px',
+                          maxWidth: '75%',
+                          fontSize: '14px',
+                          wordBreak: 'break-word'
+                        }}>
+                          {msg.content}
+                        </div>
+                        <span style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '2px' }}>
+                          {new Date(msg.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {/* Message input */}
+                <div style={{
+                  display: 'flex',
+                  gap: '8px',
+                  padding: '10px 12px',
+                  borderTop: '1px solid #E5E7EB',
+                  background: 'white'
+                }}>
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(viewingGroup.id); }}
+                    placeholder="Type a message..."
+                    style={{
+                      flex: 1,
+                      padding: '10px 14px',
+                      borderRadius: '20px',
+                      border: '1px solid #D1D5DB',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    onClick={() => handleSendMessage(viewingGroup.id)}
+                    style={{
+                      padding: '10px 20px',
+                      borderRadius: '20px',
+                      border: 'none',
+                      background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                      color: 'white',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Close button */}
+            <div style={{ marginTop: '20px' }}>
+              <button
+                onClick={() => { setViewingGroup(null); setChatMessages([]); setChatInput(''); }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #D1D5DB',
+                  background: 'white',
+                  color: '#374151',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PROFILE MODAL */}
+      {showProfileModal && selectedProfile && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 3000
+        }}
+        onClick={() => setShowProfileModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '32px',
+            width: '90%',
+            maxWidth: '420px',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ margin: 0, color: '#1F2937' }}>User Profile</h2>
+              <button 
+                onClick={() => setShowProfileModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#6B7280' }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '32px',
+                margin: '0 auto 12px'
+              }}>
+                {selectedProfile.name?.charAt(0).toUpperCase() || 'U'}
+              </div>
+              <h3 style={{ margin: '0 0 4px', color: '#1F2937', fontSize: '20px' }}>{selectedProfile.name || 'Unknown'}</h3>
+              <p style={{ margin: 0, color: '#6B7280', fontSize: '14px' }}>{selectedProfile.email}</p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Year</span>
+                <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>{selectedProfile.year || 'N/A'}</span>
+              </div>
+              <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Course</span>
+                <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>{selectedProfile.course || 'N/A'}</span>
+              </div>
+              {selectedProfile.institution && (
+                <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Institution</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937', fontWeight: 500 }}>{selectedProfile.institution}</span>
+                </div>
+              )}
+              {selectedProfile.aboutMe && (
+                <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>About</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937' }}>{selectedProfile.aboutMe}</span>
+                </div>
+              )}
+              {selectedProfile.hobby && (
+                <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Hobby</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937' }}>{selectedProfile.hobby}</span>
+                </div>
+              )}
+              {selectedProfile.language && (
+                <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Language</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937' }}>{selectedProfile.language}</span>
+                </div>
+              )}
+              {selectedProfile.nationality && (
+                <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Nationality</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937' }}>{selectedProfile.nationality}</span>
+                </div>
+              )}
+              {selectedProfile.funFact && (
+                <div style={{ background: '#F9FAFB', padding: '12px 16px', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '12px', color: '#6B7280', display: 'block', marginBottom: '2px' }}>Fun Fact</span>
+                  <span style={{ fontSize: '14px', color: '#1F2937' }}>{selectedProfile.funFact}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
